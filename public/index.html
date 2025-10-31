@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RahaTeam - بوابة إدارة الممتلكات</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .rtl { direction: rtl; }
+        .notification { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .card-hover:hover { transform: translateY(-2px); transition: transform 0.2s; }
+        .status-available { background: #10b981; }
+        .status-occupied { background: #f59e0b; }
+        .status-maintenance { background: #ef4444; }
+        .priority-high { border-left: 4px solid #ef4444; }
+        .priority-medium { border-left: 4px solid #f59e0b; }
+        .priority-low { border-left: 4px solid #10b981; }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="bg-gray-50 min-h-full"><!-- Login Screen -->
+  <div id="loginScreen" class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+   <div class="max-w-md w-full space-y-8">
+    <div class="text-center">
+     <h2 class="mt-6 text-3xl font-bold text-gray-900">RahaTeam</h2>
+     <p class="mt-2 text-sm text-gray-600">بوابة إدارة الممتلكات - نظام داخلي خاص للفريق</p>
+    </div>
+    <form id="loginForm" class="mt-8 space-y-6">
+     <div class="space-y-4">
+      <div><label for="email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني أو الهاتف</label> <input id="email" name="email" type="text" required class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="admin@rahateam.com">
+      </div>
+      <div><label for="password" class="block text-sm font-medium text-gray-700">كلمة المرور</label> <input id="password" name="password" type="password" required class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="••••••••">
+      </div>
+     </div>
+     <div><button type="submit" id="loginBtn" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"> تسجيل الدخول </button>
+     </div>
+     <div class="text-center">
+      <p class="text-xs text-gray-500">نظام آمن مع المصادقة الثنائية</p>
+     </div>
+    </form>
+   </div>
+  </div><!-- Main Application -->
+  <div id="mainApp" class="hidden"><!-- Header -->
+   <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div class="flex justify-between items-center py-4">
+      <div class="flex items-center">
+       <h1 id="companyName" class="text-xl font-semibold text-gray-900">RahaTeam</h1><span id="userRole" class="mr-4 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">المالكة</span>
+      </div>
+      <div class="flex items-center space-x-4 space-x-reverse">
+       <div id="notificationBell" class="relative cursor-pointer"><span class="text-gray-600 hover:text-gray-900">🔔</span> <span id="notificationCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">3</span>
+       </div><button id="logoutBtn" class="text-gray-600 hover:text-gray-900 text-sm">تسجيل الخروج</button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Navigation -->
+   <nav class="bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div class="flex space-x-8 space-x-reverse"><button class="nav-item active text-white px-3 py-4 text-sm font-medium border-b-2 border-blue-500" data-section="dashboard"> 📊 اللوحة الرئيسية </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="buildings"> 🏢 المباني والشقق </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="maintenance"> 🔧 الصيانة </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="housekeeping"> 🧹 التنظيف </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="inventory"> 📦 المستلزمات </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="invoices"> 🧾 الفواتير </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="reports"> 📈 التقارير </button>
+     </div>
+    </div>
+   </nav><!-- Main Content -->
+   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8"><!-- Dashboard Section -->
+    <div id="dashboard" class="section">
+     <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">اللوحة الرئيسية</h2>
+      <p class="text-gray-600">نظرة عامة على حالة الممتلكات</p>
+     </div><!-- Quick Stats -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">🏠</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            الشقق المتاحة
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            12
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">👥</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500">
+            الشقق المشغولة
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            8
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">🔧</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            طلبات الصيانة اليوم
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            3
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">⚠️</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            تنبيهات النواقص
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            5
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Recent Activities -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">الأنشطة الأخيرة</h3>
+        <div class="space-y-3" id="recentActivities">
+         <div class="flex items-center text-sm"><span class="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full ml-3"></span> <span class="text-gray-600">تم إنجاز صيانة مكيف في شقة الأستر A-203</span> <span class="mr-auto text-gray-400">منذ ساعتين</span>
+         </div>
+         <div class="flex items-center text-sm"><span class="flex-shrink-0 w-2 h-2 bg-blue-400 rounded-full ml-3"></span> <span class="text-gray-600">تنظيف شقة الفانتج F-105 مكتمل</span> <span class="mr-auto text-gray-400">منذ 4 ساعات</span>
+         </div>
+         <div class="flex items-center text-sm"><span class="flex-shrink-0 w-2 h-2 bg-yellow-400 rounded-full ml-3"></span> <span class="text-gray-600">نقص في مناشف الحمام - مبنى لوموس</span> <span class="mr-auto text-gray-400">أمس</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="мули leading-6 font-medium text-gray-900 mb-4">المهام العاجلة</h3>
+        <div class="space-y-3" id="urgentTasks">
+         <div class="p-3 bg-red-50 border border-red-200 rounded-md">
+          <div class="flex items-center"><span class="text-red-600 font-medium">عاجل:</span> <span class="mr-2 text-sm text-gray-700">تسريب مياه في شقة المستشفى H-301</span>
+          </div>
+         </div>
+         <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+          <div class="flex items-center"><span class="text-yellow-600 font-medium">متوسط:</span> <span class="mr-2 text-sm text-gray-700">استبدال لمبات في الأستر A-105</span>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Buildings Section -->
+    <div id="buildings" class="section hidden">
+     <div class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-2xl font-bold text-gray-900">المباني والشقق</h2>
+       <p class="text-gray-600">إدارة المباني الأربعة والشقق</p>
+      </div><button id="newUnitBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + إضافة شقة جديدة </button>
+     </div><!-- Buildings Grid -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="al-astr">
+       <div class="text-center">
+        <h3 class="text-lg font-semibold text-gray-900">الأستر</h3>
+        <p class="text-sm text-gray-600 mt-1">20 شقة</p>
+        <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
+         <div class="text-center"><div class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">12 متاحة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-yellow-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">6 مشغولة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-red-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">2 صيانة</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="al-fantage">
+       <div class="text-center">
+        <h3 class="text-lg font-semibold text-gray-900">الفانتج</h3>
+        <p class="text-sm text-gray-600 mt-1">15 شقة</p>
+        <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
+         <div class="text-center">
+          < группа class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">8 متاحة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-yellow-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">5 مشغولة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-red-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">2 صيانة</span>
+         </div>
+        </div>
+       </div>
+      </div>
+ <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="lumos">
+       <div class="text-center">
+        <h3 class="text-lg font-semibold text-gray-900">لوموس</h3>
+        <p class="text-sm text-gray-600 mt-1">18 شقة</p>
+        <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
+         <div class="text-center"><div class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">10 متاحة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-yellow-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">7 مشغولة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-red-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">1 صيانة</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="al-mustashfa">
+       <div class="text-center">
+        <h3 class="text-lg font-semibold text-gray-900">المستشفى</h3>
+ <p class="text-sm text-gray-600 mt-1">12 شقة</p>
+        <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
+         <div class="text-center"><div class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">7 متاحة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-yellow-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">4 مشغولة</span>
+         </div>
+         <div class="text-center">
+          <div class="w-3 h-3 bg-red-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">1 صيانة</span>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Units List -->
+     <div id="unitsContainer" class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+       <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">قائمة الشقق</h3>
+       <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+         <thead class="bg-gray-50">
+          <tr>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الشقة</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الضيف الحالي</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الخروج</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">آخر تنظيف</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+          </tr>
+         </thead>
+         <tbody id="unitsTableBody" class="bg-white divide-y divide-gray-200"><!-- Units will be populated here -->
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+    </div><!-- Maintenance Section -->
+    <div id="maintenance" class="section hidden">
+     <div class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-2xl font-bold text-gray-900">إدارة الصيانة</h2>
+       <p class="text-gray-600">طلبات الصيانة والمتابعة</p>
+      </div><button id="newMaintenanceBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + طلب صيانة جديد </button>
+     </div><!-- Maintenance Filters -->
+     <div class="bg-white shadow rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-4"><select id="statusFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع الحالات</option> <option value="new">جديد</option> <option value="in_progress">قيد التنفيذ</option> <option value="completed">مكتمل</option> </select> <select id="priorityFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع الأولويات</option> <option value="high">عالية</option> <option value="medium">متوسطة</option> <option value="low">منخفضة</option> </select> <select id="buildingFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع المباني</option> <option value="al-astr">الأستر</option> <option value="al-fantage">الفانتج</option> <option value="lumos">لوموس</option> <option value="al-mustashfa">المستشفى</option> </select>
+      </div>
+     </div><!-- Maintenance Requests List -->
+     <div id="maintenanceList" class="space-y-4"><!-- Maintenance requests will be populated here -->
+     </div>
+    </div><!-- Housekeeping Section -->
+    <div id="housekeeping" class="section hidden">
+     <div class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-2xl font-bold text-gray-900">إدارة التنظيف</h2>
+       <p class="text-gray-600">جداول التنظيف وقوائم الفحص</p>
+      </div><button id="newCleaningBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + مهمة تنظيف جديدة </button>
+     <!-- Cleaning Schedule -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">جدول التنظيف اليوم</h3>
+        <div class="space-y-3" id="todayCleaningTasks">
+         <div class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <div><span class="font-medium text-blue-900">الأستر A-203</span>
+           <p class="text-sm text-blue-700">تنظيف تسليم - خروج الضيف 2:00 م</p>
+          </div><button class="text-blue-600 hover:text-blue-800 text-sm">بدء المهمة</button>
+         </div>
+         <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
+          <div><span class="font-medium text-green-900">الفانتج F-105</span>
+           <p class="text-sm text-green-700">تنظيف عميق - صيانة دورية</p>
+          </div><button class="text-green-600 hover:text-green-800 text-sm">بدء المهمة</button>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">قائمة فحص التنظيف</h3>
+        <div class="space-y-2" id="cleaningChecklist"><label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">تغيير مفارش السرير</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">مناشف عدد 4 (حمام) + 2 (مطبخ)</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">أدوات مطبخ أساسية</span > </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">تعقيم الحمام والمطبخ</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">إعادة تعبئة المستلزمات</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">رفع 3 صور (غرفة، مطبخ، حمام)</span> </label>
+        </div><button class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium"> إنهاء المهمة </button>
+       </div>
+      </div>
+     </div>
+    </div><!-- Inventory Section -->
+    <div id="inventory" class="section hidden">
+     <div class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-2xl font-bold text-gray-900">إدارة المستلزمات</h2>
+       <p class="text-gray-600">جرد المستلزمات وأوامر الشراء</p>
+      </div><button id="newInventoryBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + إضافة صنف </button>
+     </div><!-- Inventory Alerts -->
+     <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+      <div class="flex">
+       <div class="flex-shrink-0"><span class="text-yellow-400">⚠️</span>
+       </div>
+       <div class="mr-3">
+        <h3 class="text-sm font-medium text-yellow-800">تنبيهات النواقص</h3>
+        <div class="mt-2 text-sm text-yellow-700">
+         <ul class="list-disc list-inside space-y-1">
+          <li>مناشف حمام بيضاء - متبقي 5 (الحد الأدنى: 20)</li>
+          <li>سائل جلي - متبقي 2 (الحد الأدنى: 10)</li>
+          <li>أكياس قمامة - متبقي 8 (الحد الأدنى: 50)</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+     </div><!-- Inventory Categories -->
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🛏️ مفروشات</h3>
+        <div class="space-y-2" id="beddingInventory">
+         <div class="flex justify-between items-center text-sm"><span>مفارش سرير مفرد</span> <span class="text-green-600 font-medium">25</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>مفارش سرير مزدوج</span> <span class="text-green-600 font-medium">18</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>مناشف حمام</span> <span class="text-red-600 font-medium">5 ⚠️</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>مناشف مطبخ</span> <span class="text-green-600 font-medium">32</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🧽 منظفات</h3>
+        <div class="space-y-2" id="cleaningInventory">
+         <div class="flex justify-between items-center text-sm"><span>سائل جلي</span> <span class="text-red-600 font-medium">2 ⚠️</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>منظف حمامات</span> <span class="text-green-600 font-medium">12</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>منظف أرضيات</span> <span class="text-yellow-600 font-medium">8</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>مناديل ورقية</span> <span class="text-green-600 font-medium">45</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🍽️ أدوات مطبخ</h3>
+        <div class="space-y-2" id="kitchenInventory">
+         <div class="flex justify-between items-center text-sm"><span>أكواب زجاج</span> <span class="text-green-600 font-medium">48</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>صحون</span> <span class="text-green-600 font-medium">36</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>ملاعق وشوك</span> <span class="text-yellow-600 font-medium">24</span>
+         </div>
+         <div class="flex justify-between items-center text-sm"><span>أكياس قمامة</span> <span class="text-red-600 font-medium">8 ⚠️</span>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Purchase Orders -->
+     <div class="mt-8 bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+       <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">أوامر الشراء المقترحة</h3><button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"> تصدير Excel </button>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+         <thead class="bg-gray-50">
+          <tr>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الصنف</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الكمية الحالية</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحد الأدنى</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الكمية المطلوبة</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المورد المقترح</th>
+          </tr>
+         </thead>
+         <tbody class="bg-white divide-y divide-gray-200">
+          <tr>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">مناشف حمام بيضاء</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">5</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">30</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">مورد النسيج الذهبي</td>
+          </tr>
+          <tr>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">سائل جلي</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">2</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">20</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">مورد المنظفات الحديثة</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+    </div><!-- Invoices Section -->
+    <div id="invoices" class="section hidden">
+     <div class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-2xl font-bold text-gray-900">إدارة الفواتير</h2>
+       <p class="text-gray-600">فواتير الموردين والمصروفات</p>
+      </div><button id="newInvoiceBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + فاتورة جديدة </button>
+     </div><!-- Invoice Filters -->
+     <div class="bg-white shadow rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-4"><select id="invoiceStatusFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع الحالات</option> <option value="pending">في الانتظار</option> <option value="paid">مدفوعة</option> <option value="overdue">متأخرة</option> </select> <select id="invoiceVendorFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع الموردين</option> <option value="plumber">سباك</option> <option value="electric">كهربائي</option> <option value="cleaning">تنظيف</option> <option value="supplies">مستلزمات</option> </select> <input type="date" id="invoiceDateFrom" class="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="من تاريخ"> <input type="date" id="invoiceDateTo" class="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="إلى تاريخ"> <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"> بحث </button>
+      </div>
+     </div><!-- Invoice Summary Cards -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">📄</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            إجمالي الفواتير
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            47
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">⏳</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            في الانتظار
+           </dt>
+           <dd class="text-lg font-medium text-yellow-600">
+            12
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">✅</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            مدفوعة
+           </dt>
+           <dd class="text-lg font-medium text-green-600">
+            32
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">⚠️</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            متأخرة
+           </dt>
+           <dd class="text-lg font-medium text-red-600">
+            3
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Invoices List -->
+     <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+       <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">قائمة الفواتير</h3>
+       <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+         <thead class="bg-gray-50">
+          <tr>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقم الفاتورة</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المورد</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الاستحقاق</th>
+           <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+          </tr>
+         </thead>
+         <tbody id="invoicesTableBody" class="bg-white divide-y divide-gray-200">
+          <tr>
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-2024-001</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">شركة السباكة المتقدمة</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-15</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,250 ريال</td>
+           <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"> مدفوعة </span></td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-30</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><button class="text-blue-600 hover:text-blue-900 ml-2">عرض</button> <button class="text-green-600 hover:text-green-900 ml-2">تحميل</button> <button class="text-yellow-600 hover:text-yellow-900">تعديل</button></td>
+          </tr>
+          <tr>
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-2024-002</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">مورد المنظفات الحديثة</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-18</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">850 ريال</td>
+           <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"> في الانتظار </span></td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-02-02</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><button class="text-blue-600 hover:text-blue-900 ml-2">عرض</button> <button class="text-green-600 hover:text-green-900 ml-2">دفع</button> <button class="text-yellow-600 hover:text-yellow-900">تعديل</button></td>
+          </tr>
+          <tr>
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-2024-003</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">مورد النسيج الذهبي</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-10</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2,100 ريال</td>
+           <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"> متأخرة </span></td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-25</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><button class="text-blue-600 hover:text-blue-900 ml-2">عرض</button> <button class="text-red-600 hover:text-red-900 ml-2">عاجل</button> <button class="text-yellow-600 hover:text-yellow-900">تعديل</button></td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div><!-- Monthly Summary -->
+     <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">ملخص شهري</h3>
+        <div class="space-y-3">
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">إجمالي الفواتير هذا الشهر</span> <span class="text-sm font-medium text-gray-900">26,450 ريال</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">المدفوع</span> <span class="text-sm font-medium text-green-600">18,200 ريال</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">المتبقي</span> <span class="text-sm font-medium text-yellow-600">8,250 ريال</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">المتأخر</span> <span class="text-sm font-medium text-red-600">3,150 ريال</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">أكبر الموردين</h3>
+        <div class="space-y-3">
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">شركة السباكة المتقدمة</span> <span class="text-sm font-medium text-gray-900">8,450 ريال</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">مورد النسيج الذهبي</span> <span class="text-sm font-medium text-gray-900">6,200 ريال</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">مورد المنظفات الحديثة</span> <span class="text-sm font-medium text-gray-900">4,800 ريال</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">الكهربائي المحترف</span> <span class="text-sm font-medium text-gray-900">3,200 ريال</span>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Reports Section -->
+    <div id="reports" class="section hidden">
+     <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">التقارير والإحصائيات</h2>
+      <p class="text-gray-600">تقارير مالية وتشغيلية</p>
+     </div><!-- Report Filters -->
+     <div class="bg-white shadow rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-4 items-end">
+       <div><label class="block text-sm font-medium text-gray-700 mb-1">من تاريخ</label> <input type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-1">إلى تاريخ</label> <input type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-1">نوع التقرير</label> <select class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option>تقرير شامل</option> <option>تقرير مالي</option> <option>تقرير الصيانة</option> <option>تقرير الإشغال</option> </select>
+       </div><button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"> إنشاء التقرير </button>
+      </div>
+     </div><!-- Financial Summary -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">💰</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            مصروفات الصيانة
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            12,450 ريال
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">🧹</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            مصروفات التنظيف
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            8,200 ريال
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">📦</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            مصروفات المستلزمات
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            5,680 ريال
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+       <div class="p-5">
+        <div class="flex items-center">
+         <div class="flex-shrink-0"><span class="text-2xl">📊</span>
+         </div>
+         <div class="mr-5 w-0 flex-1">
+          <dl>
+           <dt class="text-sm font-medium text-gray-500 truncate">
+            إجمالي المصروفات
+           </dt>
+           <dd class="text-lg font-medium text-gray-900">
+            26,330 ريال
+           </dd>
+          </dl>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Charts and Detailed Reports -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">أعلى الأصناف استهلاكاً</h3>
+        <div class="space-y-3">
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">مناشف حمام</span>
+          <div class="flex items-center">
+           <div class="w-24 bg-gray-200 rounded-full h-2 ml-2">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+           </div><span class="text-sm text-gray-600">85%</span>
+          </div>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">سائل جلي</span>
+          <div class="flex items-center">
+           <div class="w-24 bg-gray-200 rounded-full h-2 ml-2">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: 72%"></div>
+           </div><span class="text-sm text-gray-600">72%</span>
+          </div>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-sm text-gray-700">أكياس قمامة</span>
+          <div class="flex items-center">
+           <div class="w-24 bg-gray-200 rounded-full h-2 ml-2">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: 68%"></div>
+           </div><span class="text-sm text-gray-600">68%</span>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">معدل الإشغال</h3>
+        <div class="text-center">
+         <div class="text-3xl font-bold text-blue-600 mb-2">
+          78%
+         </div>
+         <p class="text-sm text-gray-600">متوسط الإشغال الشهري</p>
+         <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+          <div>
+           <div class="font-medium text-gray-900">
+            الأستر
+           </div>
+           <div class="text-blue-600">
+            82%
+           </div>
+          </div>
+          <div>
+           <div class="font-medium text-gray-900">
+            الفانتج
+           </div>
+           <div class="text-blue-600">
+            75%
+           </div>
+          </div>
+          <div>
+           <div class="font-medium text-gray-900">
+            لوموس
+           </div>
+           <div class="text-blue-600">
+            80%
+           </div>
+          </div>
+          <div>
+           <div class="font-medium text-gray-900">
+            المستشفى
+           </div>
+           <div class="text-blue-600">
+            74%
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Export Options -->
+     <div class="mt-8 bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+       <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">تصدير التقارير</h3>
+       <div class="flex flex-wrap gap-4"><button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> 📊 تصدير Excel </button> <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"> 📄 تصدير PDF </button> <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"> 📈 تصدير CSV </button> <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"> ☁️ حفظ في Google Drive </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- Notifications -->
+  <div id="notifications" class="fixed top-4 left-4 z-50 space-y-2"></div><!-- Modals --> <!-- New Unit Modal -->
+  <div id="unitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">إضافة شقة جديدة</h3>
+    <form id="unitForm">
+     <div class="space-y-4">
+      <div><label for="unitBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="unitBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> <option value="al-astr">الأستر</option> <option value="al-fantage">الفانتج</option> <option value="lumos">لوموس</option> <option value="al-mustashfa">المستشفى</option> </select>
+      </div>
+      <div><label for="unitNumber" class="block text-sm font-medium text-gray-700">رقم الشقة</label> <input type="text" id="unitNumber" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: 203">
+      </div>
+      <div><label for="unitFloor" class="block text-sm font-medium text-gray-700">الطابق</label> <input type="number" id="unitFloor" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="2">
+      </div>
+      <div><label for="unitType" class="block text-sm font-medium text-gray-700">نوع الشقة</label> <select id="unitType" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="studio">استوديو</option> <option value="1br">غرفة واحدة</option> <option value="2br">غرفتين</option> <option value="3br">ثلاث غرف</option> </select>
+      </div>
+      <div><label for="unitSize" class="block text-sm font-medium text-gray-700">المساحة (متر مربع)</label> <input type="number" id="unitSize" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="50">
+      </div>
+      <div><label for="unitNotes" class="block text-sm font-medium text-gray-700">ملاحظات</label> <textarea id="unitNotes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="ملاحظات إضافية عن الشقة"></textarea>
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelUnitBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700"> إضافة الشقة </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- New Invoice Modal -->
+  <div id="invoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">فاتورة جديدة</h3>
+    <form id="invoiceForm">
+     <div class="space-y-4">
+      <div><label for="invoiceNumber" class="block text-sm font-medium text-gray-700">رقم الفاتورة</label> <input type="text" id="invoiceNumber" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="INV-2024-004">
+      </div>
+      <div><label for="invoiceVendor" class="block text-sm font-medium text-gray-700">المورد</label> <input type="text" id="invoiceVendor" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="اسم المورد">
+      </div>
+      <div><label for="invoiceAmount" class="block text-sm font-medium text-gray-700">المبلغ (ريال)</label> <input type="number" id="invoiceAmount" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="1000">
+      </div>
+      <div><label for="invoiceDate" class="block text-sm font-medium text-gray-700">تاريخ الفاتورة</label> <input type="date" id="invoiceDate" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+      </div>
+      <div><label for="invoiceDueDate" class="block text-sm font-medium text-gray-700">تاريخ الاستحقاق</label> <input type="date" id="invoiceDueDate" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+      </div>
+      <div><label for="invoiceCategory" class="block text-sm font-medium text-gray-700">الفئة</label> <select id="invoiceCategory" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="maintenance">صيانة</option> <option value="cleaning">تنظيف</option> <option value="supplies">مستلزمات</option> <option value="utilities">خدمات</option> <option value="other">أخرى</option> </select>
+      </div>
+      <div><label for="invoiceDescription" class="block text-sm font-medium text-gray-700">الوصف</label> <textarea id="invoiceDescription" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="وصف الخدمة أو المنتج"></textarea>
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelInvoiceBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700"> إنشاء الفاتورة </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- New Maintenance Request Modal -->
+  <div id="maintenanceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">طلب صيانة جديد</h3>
+    <form id="maintenanceForm">
+     <div class="space-y-4">
+      <div><label for="maintenanceBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="maintenanceBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> <option value="al-astr">الأستر</option> <option value="al-fantage">الفانتج</option> <option value="lumos">لوموس</option> <option value="al-mustashfa">المستشفى</option> </select>
+      </div>
+      <div><label for="maintenanceUnit" class="block text-sm font-medium text-gray-700">الشقة</label> <input type="text" id="maintenanceUnit" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: A-203">
+      </div>
+      <div><label for="maintenanceTitle" class="block text-sm font-medium text-gray-700">عنوان المشكلة</label> <input type="text" id="maintenanceTitle" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: تسريب مياه">
+      </div>
+      <div><label for="maintenanceDescription" class="block text-sm font-medium text-gray-700">وصف المشكلة</label> <textarea id="maintenanceDescription" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="وصف تفصيلي للمشكلة"></textarea>
+      </div>
+      <div><label for="maintenancePriority" class="block text-sm font-medium text-gray-700">الأولوية</label> <select id="maintenancePriority" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="low">منخفضة</option> <option value="medium">متوسطة</option> <option value="high">عالية</option> </select>
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelMaintenanceBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700"> إنشاء الطلب </button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <script>
+        // Global state
+        let currentUser = null;
+        let currentData = [];
+        let currentSection = 'dashboard';
+
+        // Default configuration
+        const defaultConfig = {
+            company_name: "RahaTeam",
+            whatsapp_template: "مرحباً، لديك مهمة جديدة في النظام. يرجى المراجعة."
+        };
+
+        // Data handler for SDK
+        const dataHandler = {
+            onDataChanged(data) {
+                currentData = data;
+                updateUI();
+            }
+        };
+
+        // Element SDK configuration
+        const elementConfig = {
+            defaultConfig: defaultConfig,
+            onConfigChange: async (config) => {
+                const companyNameEl = document.getElementById('companyName');
+                if (companyNameEl) {
+                    companyNameEl.textContent = config.company_name || defaultConfig.company_name;
+                }
+            },
+            mapToCapabilities: (config) => ({
+                recolorables: [],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            }),
+            mapToEditPanelValues: (config) => new Map([
+                ["company_name", config.company_name || defaultConfig.company_name],
+                ["whatsapp_template", config.whatsapp_template || defaultConfig.whatsapp_template]
+            ])
+        };
+
+        // Initialize application
+        async function initApp() {
+            try {
+                if (window.elementSdk) {
+                    await window.elementSdk.init(elementConfig);
+                }
+                if (window.dataSdk) {
+                    const result = await window.dataSdk.init(dataHandler);
+                    if (!result.isOk) {
+                        console.error('Failed to initialize data SDK');
+                    }
+                }
+                setupEventListeners();
+                showNotification('تم تحميل النظام بنجاح', 'success');
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                showNotification('خطأ في تحميل النظام', 'error');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const section = e.target.dataset.section;
+                    if (section) {
+                        switchSection(section);
+                    }
+                });
+            });
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            const loginBtn = document.getElementById('loginBtn');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            loginBtn.textContent = 'جاري تسجيل الدخول...';
+            loginBtn.disabled = true;
+
+            setTimeout(() => {
+                if (email && password) {
+                    currentUser = {
+                        email: email,
+                        role: 'owner',
+                        name: 'المالكة'
+                    };
+
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+
+                    showNotification('تم تسجيل الدخول بنجاح', 'success');
+                } else {
+                    showNotification('يرجى إدخال البيانات المطلوبة', 'error');
+                }
+
+                loginBtn.textContent = 'تسجيل الدخول';
+                loginBtn.disabled = false;
+            }, 1500);
+        }
+
+        // Handle logout
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            showNotification('تم تسجيل الخروج', 'info');
+        }
+
+        // Switch sections
+        function switchSection(section) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active', 'text-white', 'border-b-2', 'border-blue-500');
+                item.classList.add('text-gray-300');
+            });
+
+            const activeItem = document.querySelector(`[data-section="${section}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active', 'text-white', 'border-b-2', 'border-blue-500');
+                activeItem.classList.remove('text-gray-300');
+            }
+
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+
+            const targetSection = document.getElementById(section);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            currentSection = section;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notifications');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' :
+                           type === 'error' ? 'bg-red-500' :
+                           type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+
+            notification.className = `notification ${bgColor} text-white px-4 py-2 rounded-md shadow-lg text-sm max-w-sm`;
+            notification.textContent = message;
+
+            container.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update UI based on current data
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
