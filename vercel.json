@@ -16,7 +16,14 @@
       "dest": "/public/$1"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/public/$1"
+    }
+  ]
 }
