@@ -25,6 +25,23 @@
         .priority-high { border-left: 4px solid #ef4444; }
         .priority-medium { border-left: 4px solid #f59e0b; }
         .priority-low { border-left: 4px solid #10b981; }
+        #calendarGrid > div {
+            min-height: 120px;
+            position: relative;
+        }
+        .calendar-day {
+            transition: all 0.2s ease;
+        }
+        .calendar-day:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        #taskModal {
+            display: none;
+        }
+        #taskModal.flex {
+            display: flex;
+        }
     </style>
   <style>@view-transition { navigation: auto; }</style>
  </head>
@@ -66,7 +83,7 @@
    </header><!-- Navigation -->
    <nav class="bg-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-     <div class="flex space-x-8 space-x-reverse"><button class="nav-item active text-white px-3 py-4 text-sm font-medium border-b-2 border-blue-500" data-section="dashboard"> 📊 اللوحة الرئيسية </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="buildings"> 🏢 المباني والشقق </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="maintenance"> 🔧 الصيانة </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="housekeeping"> 🧹 التنظيف </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="inventory"> 📦 المستلزمات </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="invoices"> 🧾 الفواتير </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="reports"> 📈 التقارير </button>
+     <div class="flex space-x-8 space-x-reverse"><button class="nav-item active text-white px-3 py-4 text-sm font-medium border-b-2 border-blue-500" data-section="dashboard"> 📊 اللوحة الرئيسية </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="buildings"> 🏢 المباني والشقق </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="maintenance"> 🔧 الصيانة </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="housekeeping"> 🧹 التنظيف </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="inventory"> 📦 المستلزمات </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="calendar"> 📅 التقويم </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="invoices"> 🧾 الفواتير </button> <button class="nav-item text-gray-300 hover:text-white px-3 py-4 text-sm font-medium" data-section="reports"> 📈 التقارير </button>
      </div>
     </div>
    </nav><!-- Main Content -->
@@ -185,12 +202,25 @@
      <div class="mb-6 flex justify-between items-center">
       <div>
        <h2 class="text-2xl font-bold text-gray-900">المباني والشقق</h2>
-       <p class="text-gray-600">إدارة المباني الأربعة والشقق</p>
-      </div><button id="newUnitBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + إضافة شقة جديدة </button>
-     </div><!-- Buildings Grid -->
-     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="al-astr">
-       <div class="text-center">
+       <p class="text-gray-600">إدارة المباني والشقق</p>
+      </div>
+      <div class="flex gap-2">
+       <button id="newBuildingBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + إضافة مبنى جديد </button>
+       <button id="newUnitBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + إضافة شقة جديدة </button>
+      </div>
+     </div>     <!-- Buildings Grid -->
+     <div id="buildingsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white shadow rounded-lg overflow-hidden card-hover cursor-pointer" data-building="al-astr">
+       <div class="relative h-48 bg-gray-200">
+        <img id="building-img-al-astr" src="" alt="الأستر" class="w-full h-full object-cover" onerror="this.style.display='none'">
+        <div class="absolute top-2 left-2">
+         <button onclick="openBuildingImagesModal('al-astr')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium">📷 الصور</button>
+        </div>
+        <div id="no-image-al-astr" class="flex items-center justify-center h-full text-gray-400">
+         <span class="text-sm">لا توجد صورة</span>
+        </div>
+       </div>
+       <div class="p-6 text-center">
         <h3 class="text-lg font-semibold text-gray-900">الأستر</h3>
         <p class="text-sm text-gray-600 mt-1">20 شقة</p>
         <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
@@ -205,13 +235,21 @@
         </div>
        </div>
       </div>
-      <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="al-fantage">
-       <div class="text-center">
+      <div class="bg-white shadow rounded-lg overflow-hidden card-hover cursor-pointer" data-building="al-fantage">
+       <div class="relative h-48 bg-gray-200">
+        <img id="building-img-al-fantage" src="" alt="الفانتج" class="w-full h-full object-cover" onerror="this.style.display='none'">
+        <div class="absolute top-2 left-2">
+         <button onclick="openBuildingImagesModal('al-fantage')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium">📷 الصور</button>
+        </div>
+        <div id="no-image-al-fantage" class="flex items-center justify-center h-full text-gray-400">
+         <span class="text-sm">لا توجد صورة</span>
+        </div>
+       </div>
+       <div class="p-6 text-center">
         <h3 class="text-lg font-semibold text-gray-900">الفانتج</h3>
         <p class="text-sm text-gray-600 mt-1">15 شقة</p>
         <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
-         <div class="text-center">
-          < группа class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">8 متاحة</span>
+         <div class="text-center"><div class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">8 متاحة</span>
          </div>
          <div class="text-center">
           <div class="w-3 h-3 bg-yellow-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">5 مشغولة</span>
@@ -222,8 +260,17 @@
         </div>
        </div>
       </div>
- <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="lumos">
-       <div class="text-center">
+      <div class="bg-white shadow rounded-lg overflow-hidden card-hover cursor-pointer" data-building="lumos">
+       <div class="relative h-48 bg-gray-200">
+        <img id="building-img-lumos" src="" alt="لوموس" class="w-full h-full object-cover" onerror="this.style.display='none'">
+        <div class="absolute top-2 left-2">
+         <button onclick="openBuildingImagesModal('lumos')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium">📷 الصور</button>
+        </div>
+        <div id="no-image-lumos" class="flex items-center justify-center h-full text-gray-400">
+         <span class="text-sm">لا توجد صورة</span>
+        </div>
+       </div>
+       <div class="p-6 text-center">
         <h3 class="text-lg font-semibold text-gray-900">لوموس</h3>
         <p class="text-sm text-gray-600 mt-1">18 شقة</p>
         <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
@@ -238,10 +285,19 @@
         </div>
        </div>
       </div>
-      <div class="bg-white shadow rounded-lg p-6 card-hover cursor-pointer" data-building="al-mustashfa">
-       <div class="text-center">
+      <div class="bg-white shadow rounded-lg overflow-hidden card-hover cursor-pointer" data-building="al-mustashfa">
+       <div class="relative h-48 bg-gray-200">
+        <img id="building-img-al-mustashfa" src="" alt="المستشفى" class="w-full h-full object-cover" onerror="this.style.display='none'">
+        <div class="absolute top-2 left-2">
+         <button onclick="openBuildingImagesModal('al-mustashfa')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium">📷 الصور</button>
+        </div>
+        <div id="no-image-al-mustashfa" class="flex items-center justify-center h-full text-gray-400">
+         <span class="text-sm">لا توجد صورة</span>
+        </div>
+       </div>
+       <div class="p-6 text-center">
         <h3 class="text-lg font-semibold text-gray-900">المستشفى</h3>
- <p class="text-sm text-gray-600 mt-1">12 شقة</p>
+        <p class="text-sm text-gray-600 mt-1">12 شقة</p>
         <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
          <div class="text-center"><div class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">7 متاحة</span>
          </div>
@@ -294,33 +350,113 @@
     <div id="housekeeping" class="section hidden">
      <div class="mb-6 flex justify-between items-center">
       <div>
-       <h2 class="text-2xl font-bold text-gray-900">إدارة التنظيف</h2>
-       <p class="text-gray-600">جداول التنظيف وقوائم الفحص</p>
-      </div><button id="newCleaningBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + مهمة تنظيف جديدة </button>
-     <!-- Cleaning Schedule -->
-     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+       <h2 class="text-2xl font-bold text-gray-900">إدارة التنظيف والمهام</h2>
+       <p class="text-gray-600">جدول رئيسي شامل لتنظيم جميع مهام التنظيف والجودة</p>
+      </div>
+      <div class="flex gap-2">
+       <button id="newCleaningBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + مهمة تنظيف جديدة </button>
+       <button id="newQualityCheckBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"> ✓ فحص جودة </button>
+      </div>
+     </div><!-- Main Tasks Table -->
+     <div class="bg-white shadow rounded-lg mb-6">
+      <div class="px-4 py-5 sm:p-6">
+       <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">📋 الجدول الرئيسي للمهام</h3>
+        <div class="flex gap-2"><select id="taskTypeFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع الأنواع</option> <option value="turnover">بعد خروج الضيف</option> <option value="final_touch">قبل دخول الضيف</option> <option value="deep_weekly">تنظيف عميق أسبوعي</option> <option value="deep_monthly">تنظيف عميق شهري</option> <option value="quality_check">فحص الجودة</option> <option value="quick">ترتيب سريع</option> </select> <select id="taskStatusFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع الحالات</option> <option value="new">جديدة</option> <option value="in_progress">قيد التنفيذ</option> <option value="completed">تمت</option> <option value="quality_check">في انتظار الفحص</option> </select> <select id="taskBuildingFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm"> <option value="">جميع المباني</option> <option value="al-astr">الأستر</option> <option value="al-fantage">الفانتج</option> <option value="lumos">لوموس</option> <option value="al-mustashfa">المستشفى</option> </select>
+        </div>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+         <thead class="bg-gray-50">
+          <tr>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم المهمة</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">نوع المهمة</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">المبنى</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الشقة</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">المسؤول</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاريخ البداية</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاريخ الانتهاء</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">ملاحظات</th>
+           <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
+          </tr>
+         </thead>
+         <tbody id="mainTasksTableBody" class="bg-white divide-y divide-gray-200">
+          <!-- Tasks will be populated here -->
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div><!-- Task Types Sections -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Today's Tasks -->
       <div class="bg-white shadow rounded-lg">
        <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">جدول التنظيف اليوم</h3>
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">📅 مهام اليوم</h3>
         <div class="space-y-3" id="todayCleaningTasks">
-         <div class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <div><span class="font-medium text-blue-900">الأستر A-203</span>
-           <p class="text-sm text-blue-700">تنظيف تسليم - خروج الضيف 2:00 م</p>
-          </div><button class="text-blue-600 hover:text-blue-800 text-sm">بدء المهمة</button>
+         <!-- Tasks will be populated here -->
+        </div>
+       </div>
+      </div>
+      <!-- Task Statistics -->
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">📊 إحصائيات المهام</h3>
+        <div class="space-y-4">
+         <div class="flex justify-between items-center p-3 bg-blue-50 rounded-md"><span class="text-sm font-medium text-gray-700">مهام جديدة</span> <span class="text-xl font-bold text-blue-600" id="statsNew">0</span>
          </div>
-         <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
-          <div><span class="font-medium text-green-900">الفانتج F-105</span>
-           <p class="text-sm text-green-700">تنظيف عميق - صيانة دورية</p>
-          </div><button class="text-green-600 hover:text-green-800 text-sm">بدء المهمة</button>
+         <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-md"><span class="text-sm font-medium text-gray-700">قيد التنفيذ</span> <span class="text-xl font-bold text-yellow-600" id="statsInProgress">0</span>
+         </div>
+         <div class="flex justify-between items-center p-3 bg-green-50 rounded-md"><span class="text-sm font-medium text-gray-700">تمت</span> <span class="text-xl font-bold text-green-600" id="statsCompleted">0</span>
+         </div>
+         <div class="flex justify-between items-center p-3 bg-purple-50 rounded-md"><span class="text-sm font-medium text-gray-700">في انتظار الفحص</span> <span class="text-xl font-bold text-purple-600" id="statsQualityCheck">0</span>
          </div>
         </div>
        </div>
       </div>
-      <div class="bg-white shadow rounded-lg">
-       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">قائمة فحص التنظيف</h3>
-        <div class="space-y-2" id="cleaningChecklist"><label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">تغيير مفارش السرير</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">مناشف عدد 4 (حمام) + 2 (مطبخ)</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">أدوات مطبخ أساسية</span > </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">تعقيم الحمام والمطبخ</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">إعادة تعبئة المستلزمات</span> </label> <label class="flex items-center"> <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span class="mr-2 text-sm text-gray-700">رفع 3 صور (غرفة، مطبخ، حمام)</span> </label>
-        </div><button class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium"> إنهاء المهمة </button>
+     </div><!-- Detailed Checklists -->
+     <div class="bg-white shadow rounded-lg mb-6">
+      <div class="px-4 py-5 sm:p-6">
+       <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">📋 قوائم الفحص التفصيلية</h3>
+       <div class="border-b border-gray-200 mb-4">
+        <button class="px-4 py-2 text-sm font-medium text-gray-700 border-b-2 border-green-600 checklist-tab active" data-checklist="turnover">بعد خروج الضيف</button>
+        <button class="px-4 py-2 text-sm font-medium text-gray-700 checklist-tab" data-checklist="final_touch">قبل دخول الضيف</button>
+        <button class="px-4 py-2 text-sm font-medium text-gray-700 checklist-tab" data-checklist="deep_weekly">تنظيف عميق أسبوعي</button>
+        <button class="px-4 py-2 text-sm font-medium text-gray-700 checklist-tab" data-checklist="deep_monthly">تنظيف عميق شهري</button>
+        <button class="px-4 py-2 text-sm font-medium text-gray-700 checklist-tab" data-checklist="quality_check">فحص الجودة</button>
+       </div>
+       <!-- Turnover Cleaning Checklist -->
+       <div id="checklist-turnover" class="checklist-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <div><h4 class="font-semibold text-gray-900 mb-3">🛏️ غرفة النوم</h4><div class="space-y-2"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تبديل جميع المفارش</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تهوية الغرفة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">ترتيب المخدات بطريقة موحّدة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الأرضيات</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التأكد من عدد المخدات والبطانيات</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">فحص أي بقع على الشراشف والتبليغ</span></label></div>
+         </div>
+         <div><h4 class="font-semibold text-gray-900 mb-3">🚿 الحمّام</h4><div class="space-y-2"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">غسل وتنظيف المغسلة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الكراسي</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الشاور</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">وضع مناشف جديدة (حسب العدد القياسي)</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">وضع رولين مناديل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تعبئة صابون اليد</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التخلص من أي مخلفات</span></label></div>
+         </div>
+         <div><h4 class="font-semibold text-gray-900 mb-3">🍽️ المطبخ</h4><div class="space-y-2"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">غسيل الأواني</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف السطح</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">إزالة أي أكل باقي</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الثلاجة من الداخل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الميكرويف</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">إضافة أدوات ناقصة (كاسات – صحون – ملاعق)</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تعبئة صابون الصحون + إسفنجة جديدة</span></label></div>
+         </div>
+         <div><h4 class="font-semibold text-gray-900 mb-3">🛋️ الصالة</h4><div class="space-y-2"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">ترتيب الكنبة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الأرضيات</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">مسح الطاولة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">ترتيب الديكور</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التأكد من الريموتات + إضافة بطاريات لو ناقصة</span></label></div>
+         </div>
+         <div><h4 class="font-semibold text-gray-900 mb-3">🗑️ النفايات</h4><div class="space-y-2"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">إزالة جميع أكياس القمامة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">وضع أكياس جديدة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">مسح سلة القمامة</span></label></div>
+         </div>
+         <div><h4 class="font-semibold text-gray-900 mb-3">💨 التهوية والمعطر</h4><div class="space-y-2"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">فتح النوافذ للتهوية</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">بخاخ معطر خفيف</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التأكد من الإنارة تعمل</span></label></div>
+         </div>
+        </div>
+       </div>
+       <!-- Final Touch Checklist -->
+       <div id="checklist-final_touch" class="checklist-content hidden">
+        <div class="space-y-3"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">فحص ترتيب السرير</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تشغيل إنارة دافئة</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التأكد من الواي فاي يعمل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">فتح القناع العلوي للستائر (لو فيه)</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التأكد من نظافة الأرض</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">ترتيب الضيافة (قهوة – شاي – سكر)</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">التأكد من المناشف مطوية بشكل جميل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">إضافة بطاقة ترحيب صغيرة (اختياري)</span></label></div>
+       </div>
+       <!-- Deep Weekly Cleaning -->
+       <div id="checklist-deep_weekly" class="checklist-content hidden">
+        <div class="space-y-3"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف ثلاجة كامل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">مسح الأجهزة الكهربائية</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">غسل الشراشف الاحتياطية</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف النوافذ من الداخل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">ترتيب المخزون في الخزانة</span></label></div>
+       </div>
+       <!-- Deep Monthly Cleaning -->
+       <div id="checklist-deep_monthly" class="checklist-content hidden">
+        <div class="space-y-3"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الجدران من البصمات</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف رفوف المطبخ</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف تحت السرير</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف الفلتر في التكييف</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تنظيف ستارة الشاور أو تغييرها</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">تغيير بطاريات الريموتات لو قربت تخلص</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500"><span class="mr-2 text-sm text-gray-700">فحص الأسلاك – الإضاءة – التلفزيون</span></label></div>
+       </div>
+       <!-- Quality Check -->
+       <div id="checklist-quality_check" class="checklist-content hidden">
+        <div class="space-y-3"><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">فحص السرير هل مرتب بشكل مثالي</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد من عدد المناشف</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد من عدم وجود روائح</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد من نظافة المرايا</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد من توفر كل الـ mini items</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد من عدد الكاسات والصحون</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد من الباب والأقفال</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد أن التكييف يعمل</span></label><label class="flex items-center"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"><span class="mr-2 text-sm text-gray-700">التأكد أن الشقة 100% جاهزة</span></label></div>
        </div>
       </div>
      </div>
@@ -347,19 +483,63 @@
         </div>
        </div>
       </div>
+     </div><!-- Inventory Quick Stats -->
+     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-xs text-blue-600 font-medium">إجمالي الأصناف</p>
+         <p class="text-2xl font-bold text-blue-900 mt-1">180</p>
+        </div>
+        <span class="text-3xl">📦</span>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-xs text-green-600 font-medium">متوفرة</p>
+         <p class="text-2xl font-bold text-green-900 mt-1">165</p>
+        </div>
+        <span class="text-3xl">✅</span>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-lg p-4">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-xs text-yellow-600 font-medium">قليلة</p>
+         <p class="text-2xl font-bold text-yellow-900 mt-1">8</p>
+        </div>
+        <span class="text-3xl">⚠️</span>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-4">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-xs text-red-600 font-medium">ناقصة</p>
+         <p class="text-2xl font-bold text-red-900 mt-1">7</p>
+        </div>
+        <span class="text-3xl">🔴</span>
+       </div>
+      </div>
      </div><!-- Inventory Categories -->
      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-white shadow rounded-lg">
        <div class="px-4 py-5 sm:p-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🛏️ مفروشات</h3>
-        <div class="space-y-2" id="beddingInventory">
-         <div class="flex justify-between items-center text-sm"><span>مفارش سرير مفرد</span> <span class="text-green-600 font-medium">25</span>
+        <div class="space-y-3" id="beddingInventory">
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مفارش سرير مفرد</span> <span class="text-green-600 font-semibold">25</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>مفارش سرير مزدوج</span> <span class="text-green-600 font-medium">18</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مفارش سرير مزدوج</span> <span class="text-green-600 font-semibold">18</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>مناشف حمام</span> <span class="text-red-600 font-medium">5 ⚠️</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مفارش سرير كينج</span> <span class="text-green-600 font-semibold">12</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>مناشف مطبخ</span> <span class="text-green-600 font-medium">32</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مناشف حمام</span> <span class="text-red-600 font-semibold">5 ⚠️</span>
+         </div>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مناشف مطبخ</span> <span class="text-green-600 font-semibold">32</span>
+         </div>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">أغطية وسادات</span> <span class="text-green-600 font-semibold">45</span>
+         </div>
+         <div class="flex justify-between items-center py-2"><span class="text-sm text-gray-700">بطانيات</span> <span class="text-yellow-600 font-semibold">15</span>
          </div>
         </div>
        </div>
@@ -367,14 +547,20 @@
       <div class="bg-white shadow rounded-lg">
        <div class="px-4 py-5 sm:p-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🧽 منظفات</h3>
-        <div class="space-y-2" id="cleaningInventory">
-         <div class="flex justify-between items-center text-sm"><span>سائل جلي</span> <span class="text-red-600 font-medium">2 ⚠️</span>
+        <div class="space-y-3" id="cleaningInventory">
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">سائل جلي</span> <span class="text-red-600 font-semibold">2 ⚠️</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>منظف حمامات</span> <span class="text-green-600 font-medium">12</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">منظف حمامات</span> <span class="text-green-600 font-semibold">12</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>منظف أرضيات</span> <span class="text-yellow-600 font-medium">8</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">منظف أرضيات</span> <span class="text-yellow-600 font-semibold">8</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>مناديل ورقية</span> <span class="text-green-600 font-medium">45</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مطهرات عامة</span> <span class="text-green-600 font-semibold">18</span>
+         </div>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">مناديل ورقية</span> <span class="text-green-600 font-semibold">45</span>
+         </div>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">إسفنجات تنظيف</span> <span class="text-green-600 font-semibold">30</span>
+         </div>
+         <div class="flex justify-between items-center py-2"><span class="text-sm text-gray-700">قفازات تنظيف</span> <span class="text-yellow-600 font-semibold">22</span>
          </div>
         </div>
        </div>
@@ -382,14 +568,20 @@
       <div class="bg-white shadow rounded-lg">
        <div class="px-4 py-5 sm:p-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🍽️ أدوات مطبخ</h3>
-        <div class="space-y-2" id="kitchenInventory">
-         <div class="flex justify-between items-center text-sm"><span>أكواب زجاج</span> <span class="text-green-600 font-medium">48</span>
+        <div class="space-y-3" id="kitchenInventory">
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">أكواب زجاج</span> <span class="text-green-600 font-semibold">48</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>صحون</span> <span class="text-green-600 font-medium">36</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">أكواب قهوة</span> <span class="text-green-600 font-semibold">42</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>ملاعق وشوك</span> <span class="text-yellow-600 font-medium">24</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">صحون</span> <span class="text-green-600 font-semibold">36</span>
          </div>
-         <div class="flex justify-between items-center text-sm"><span>أكياس قمامة</span> <span class="text-red-600 font-medium">8 ⚠️</span>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">أطباق تقديم</span> <span class="text-green-600 font-semibold">20</span>
+         </div>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">ملاعق وشوك</span> <span class="text-yellow-600 font-semibold">24</span>
+         </div>
+         <div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="text-sm text-gray-700">سكاكين</span> <span class="text-green-600 font-semibold">30</span>
+         </div>
+         <div class="flex justify-between items-center py-2"><span class="text-sm text-gray-700">أكياس قمامة</span> <span class="text-red-600 font-semibold">8 ⚠️</span>
          </div>
         </div>
        </div>
@@ -412,22 +604,122 @@
           </tr>
          </thead>
          <tbody class="bg-white divide-y divide-gray-200">
-          <tr>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">مناشف حمام بيضاء</td>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">5</td>
+          <tr class="hover:bg-gray-50">
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">مناشف حمام بيضاء</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">5</td>
            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20</td>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">30</td>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">مورد النسيج الذهبي</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">30</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline cursor-pointer">مورد النسيج الذهبي</td>
           </tr>
-          <tr>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">سائل جلي</td>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">2</td>
+          <tr class="hover:bg-gray-50">
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">سائل جلي</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">2</td>
            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10</td>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">20</td>
-           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">مورد المنظفات الحديثة</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">20</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline cursor-pointer">مورد المنظفات الحديثة</td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">أكياس قمامة</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">8</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">50</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">60</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline cursor-pointer">مورد المنظفات الحديثة</td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">منظف أرضيات</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">8</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">12</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline cursor-pointer">مورد المنظفات الحديثة</td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ملاعق وشوك</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">24</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">40</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">30</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline cursor-pointer">مورد الأدوات المنزلية</td>
           </tr>
          </tbody>
         </table>
+       </div>
+      </div>
+     </div>
+    </div><!-- Calendar Section -->
+    <div id="calendar" class="section hidden">
+     <div class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-2xl font-bold text-gray-900">التقويم والمهام</h2>
+       <p class="text-gray-600">إدارة المهام والأحداث المرتبطة بالأماكن</p>
+      </div><button id="newTaskBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"> + مهمة جديدة </button>
+     </div><!-- Calendar Navigation -->
+     <div class="bg-white shadow rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center">
+       <button id="prevMonth" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium">← الشهر السابق</button>
+       <div class="text-center">
+        <h3 id="currentMonth" class="text-xl font-bold text-gray-900">يناير 2024</h3>
+        <p id="currentYear" class="text-sm text-gray-600"></p>
+       </div>
+       <button id="nextMonth" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium">الشهر التالي →</button>
+      </div>
+     </div><!-- Calendar Grid -->
+     <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+      <!-- Calendar Header -->
+      <div class="grid grid-cols-7 bg-gray-100 border-b border-gray-300">
+       <div class="p-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300">الأحد</div>
+       <div class="p-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300">الإثنين</div>
+       <div class="p-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300">الثلاثاء</div>
+       <div class="p-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300">الأربعاء</div>
+       <div class="p-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300">الخميس</div>
+       <div class="p-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300">الجمعة</div>
+       <div class="p-3 text-center text-sm font-semibold text-gray-700">السبت</div>
+      </div>
+      <!-- Calendar Days Grid -->
+      <div id="calendarGrid" class="grid grid-cols-7">
+       <!-- Calendar days will be generated by JavaScript -->
+      </div>
+     </div><!-- Today's Tasks -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">📋 مهام اليوم</h3>
+        <div id="todayTasks" class="space-y-3">
+         <div class="flex items-start p-3 bg-blue-50 border-r-4 border-blue-500 rounded">
+          <div class="flex-1">
+           <p class="text-sm font-medium text-gray-900">تنظيف الشقة 101 - المبنى A</p>
+           <p class="text-xs text-gray-500 mt-1">10:00 ص - عادية</p>
+          </div>
+          <button class="text-green-600 hover:text-green-800 text-sm">✓</button>
+         </div>
+         <div class="flex items-start p-3 bg-yellow-50 border-r-4 border-yellow-500 rounded">
+          <div class="flex-1">
+           <p class="text-sm font-medium text-gray-900">صيانة التكييف - الشقة 205</p>
+           <p class="text-xs text-gray-500 mt-1">2:00 م - عاجلة</p>
+          </div>
+          <button class="text-green-600 hover:text-green-800 text-sm">✓</button>
+         </div>
+        </div>
+        <p id="noTasksToday" class="text-sm text-gray-500 text-center py-4 hidden">لا توجد مهام لهذا اليوم</p>
+       </div>
+      </div>
+      <div class="bg-white shadow rounded-lg">
+       <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🏢 المهام حسب المكان</h3>
+        <div id="tasksByLocation" class="space-y-3">
+         <div class="border-b border-gray-200 pb-3">
+          <p class="text-sm font-semibold text-gray-900 mb-2">المبنى A - الشقة 101</p>
+          <div class="space-y-2 mr-4">
+           <div class="flex items-center text-xs text-gray-600"><span class="w-2 h-2 bg-blue-500 rounded-full ml-2"></span>تنظيف يومي</div>
+           <div class="flex items-center text-xs text-gray-600"><span class="w-2 h-2 bg-green-500 rounded-full ml-2"></span>فحص دوري</div>
+          </div>
+         </div>
+         <div class="border-b border-gray-200 pb-3">
+          <p class="text-sm font-semibold text-gray-900 mb-2">المبنى B - الشقة 305</p>
+          <div class="space-y-2 mr-4">
+           <div class="flex items-center text-xs text-gray-600"><span class="w-2 h-2 bg-yellow-500 rounded-full ml-2"></span>صيانة عاجلة</div>
+          </div>
+         </div>
+        </div>
+        <p id="noLocationTasks" class="text-sm text-gray-500 text-center py-4 hidden">لا توجد مهام مرتبطة بالأماكن</p>
        </div>
       </div>
      </div>
@@ -775,11 +1067,11 @@
   </div><!-- Notifications -->
   <div id="notifications" class="fixed top-4 left-4 z-50 space-y-2"></div><!-- Modals --> <!-- New Unit Modal -->
   <div id="unitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
-   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+   <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
     <h3 class="text-lg font-medium text-gray-900 mb-4">إضافة شقة جديدة</h3>
     <form id="unitForm">
-     <div class="space-y-4">
-      <div><label for="unitBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="unitBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> <option value="al-astr">الأستر</option> <option value="al-fantage">الفانتج</option> <option value="lumos">لوموس</option> <option value="al-mustashfa">المستشفى</option> </select>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div><label for="unitBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="unitBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> </select>
       </div>
       <div><label for="unitNumber" class="block text-sm font-medium text-gray-700">رقم الشقة</label> <input type="text" id="unitNumber" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: 203">
       </div>
@@ -789,12 +1081,66 @@
       </div>
       <div><label for="unitSize" class="block text-sm font-medium text-gray-700">المساحة (متر مربع)</label> <input type="number" id="unitSize" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="50">
       </div>
-      <div><label for="unitNotes" class="block text-sm font-medium text-gray-700">ملاحظات</label> <textarea id="unitNotes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="ملاحظات إضافية عن الشقة"></textarea>
+      <div class="md:col-span-2"><label for="unitNotes" class="block text-sm font-medium text-gray-700">ملاحظات</label> <textarea id="unitNotes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="ملاحظات إضافية عن الشقة"></textarea>
+      </div>
+      <div class="md:col-span-2">
+       <label class="block text-sm font-medium text-gray-700 mb-2">📷 صور الشقة (يمكن رفع حتى 12 صورة)</label>
+       <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+        <input type="file" id="unitImages" multiple accept="image/*" class="hidden" onchange="handleUnitImagesUpload(event)">
+        <div id="unitImagesPreview" class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-3"></div>
+        <button type="button" onclick="document.getElementById('unitImages').click()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">+ اختيار الصور (حتى 12 صورة)</button>
+        <p class="text-xs text-gray-500 mt-2 text-center">يمكنك رفع حتى 12 صورة للشقة</p>
+       </div>
       </div>
      </div>
      <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelUnitBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700"> إضافة الشقة </button>
      </div>
     </form>
+   </div>
+  </div><!-- New Building Modal -->
+  <div id="buildingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">إضافة مبنى جديد</h3>
+    <form id="buildingForm">
+     <div class="space-y-4">
+      <div><label for="buildingName" class="block text-sm font-medium text-gray-700">اسم المبنى</label> <input type="text" id="buildingName" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: المبنى الجديد">
+      </div>
+      <div><label for="buildingCode" class="block text-sm font-medium text-gray-700">كود المبنى</label> <input type="text" id="buildingCode" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: building-new">
+      </div>
+      <div><label for="buildingAddress" class="block text-sm font-medium text-gray-700">العنوان</label> <input type="text" id="buildingAddress" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="عنوان المبنى">
+      </div>
+      <div><label for="buildingFloors" class="block text-sm font-medium text-gray-700">عدد الطوابق</label> <input type="number" id="buildingFloors" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="5">
+      </div>
+      <div>
+       <label class="block text-sm font-medium text-gray-700 mb-2">📷 صور المبنى</label>
+       <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+        <input type="file" id="buildingImages" multiple accept="image/*" class="hidden" onchange="handleBuildingImagesUpload(event, 'new')">
+        <div id="buildingImagesPreview" class="grid grid-cols-3 gap-2 mb-3"></div>
+        <button type="button" onclick="document.getElementById('buildingImages').click()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">+ اختيار الصور</button>
+       </div>
+      </div>
+      <div><label for="buildingNotes" class="block text-sm font-medium text-gray-700">ملاحظات</label> <textarea id="buildingNotes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="ملاحظات إضافية"></textarea>
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelBuildingBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700"> إضافة المبنى </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Building Images Modal -->
+  <div id="buildingImagesModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-medium text-gray-900 mb-4" id="buildingImagesModalTitle">صور المبنى</h3>
+    <div id="buildingImagesModalContent">
+     <div class="mb-4">
+      <input type="file" id="buildingImagesUpload" multiple accept="image/*" class="hidden" onchange="handleBuildingImagesUpload(event, window.currentBuildingId)">
+      <button type="button" onclick="document.getElementById('buildingImagesUpload').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">+ إضافة صور جديدة</button>
+     </div>
+     <div id="buildingImagesGrid" class="grid grid-cols-3 md:grid-cols-4 gap-4">
+      <!-- Images will be populated here -->
+     </div>
+    </div>
+    <div class="mt-6 flex justify-end"><button type="button" id="closeBuildingImagesBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إغلاق </button>
+     </div>
    </div>
   </div><!-- New Invoice Modal -->
   <div id="invoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
@@ -842,12 +1188,97 @@
      </div>
     </form>
    </div>
+  </div><!-- New Cleaning Task Modal -->
+  <div id="cleaningTaskModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">مهمة تنظيف جديدة</h3>
+    <form id="cleaningTaskForm">
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div><label for="cleaningTaskType" class="block text-sm font-medium text-gray-700">نوع المهمة</label> <select id="cleaningTaskType" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر النوع</option> <option value="turnover">بعد خروج الضيف</option> <option value="final_touch">قبل دخول الضيف</option> <option value="deep_weekly">تنظيف عميق أسبوعي</option> <option value="deep_monthly">تنظيف عميق شهري</option> <option value="quick">ترتيب سريع</option> </select>
+      </div>
+      <div><label for="cleaningTaskBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="cleaningTaskBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> <option value="الأستر">الأستر</option> <option value="الفانتج">الفانتج</option> <option value="لوموس">لوموس</option> <option value="المستشفى">المستشفى</option> </select>
+      </div>
+      <div><label for="cleaningTaskUnit" class="block text-sm font-medium text-gray-700">رقم الشقة</label> <input type="text" id="cleaningTaskUnit" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: 101">
+      </div>
+      <div><label for="cleaningTaskAssignee" class="block text-sm font-medium text-gray-700">اسم العامل/المسؤول</label> <input type="text" id="cleaningTaskAssignee" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="اسم الموظف">
+      </div>
+      <div><label for="cleaningTaskStartDate" class="block text-sm font-medium text-gray-700">تاريخ البداية</label> <input type="date" id="cleaningTaskStartDate" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+      </div>
+      <div><label for="cleaningTaskEndDate" class="block text-sm font-medium text-gray-700">تاريخ الانتهاء</label> <input type="date" id="cleaningTaskEndDate" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+      </div>
+      <div><label for="cleaningTaskStatus" class="block text-sm font-medium text-gray-700">حالة المهمة</label> <select id="cleaningTaskStatus" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="new">جديدة</option> <option value="in_progress">قيد التنفيذ</option> <option value="completed">تمت</option> <option value="quality_check">في انتظار الفحص</option> </select>
+      </div>
+      <div class="md:col-span-2"><label for="cleaningTaskNotes" class="block text-sm font-medium text-gray-700">ملاحظات</label> <textarea id="cleaningTaskNotes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="ملاحظات: (شي ناقص / بلغ عن مشكلة / يحتاج صيانة)"></textarea>
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelCleaningTaskBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700"> حفظ المهمة </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Quality Check Modal -->
+  <div id="qualityCheckModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">✓ فحص الجودة النهائي</h3>
+    <form id="qualityCheckForm">
+     <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="qcBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="qcBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> <option value="الأستر">الأستر</option> <option value="الفانتج">الفانتج</option> <option value="لوموس">لوموس</option> <option value="المستشفى">المستشفى</option> </select>
+      </div><div><label for="qcUnit" class="block text-sm font-medium text-gray-700">رقم الشقة</label> <input type="text" id="qcUnit" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: 101">
+      </div>
+      </div>
+      <div><label for="qcInspector" class="block text-sm font-medium text-gray-700">اسم المفتش/المشرفة</label> <input type="text" id="qcInspector" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="اسم المفتش">
+      </div>
+      <div class="bg-purple-50 p-4 rounded-md">
+       <h4 class="font-semibold text-gray-900 mb-3">قائمة فحص الجودة:</h4>
+       <div id="qcChecklist" class="space-y-2">
+        <!-- Quality checklist items will be populated here -->
+       </div>
+      </div>
+      <div><label for="qcNotes" class="block text-sm font-medium text-gray-700">ملاحظات إضافية</label> <textarea id="qcNotes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="ملاحظات الفحص"></textarea>
+      </div>
+      <div><label for="qcResult" class="block text-sm font-medium text-gray-700">نتيجة الفحص</label> <select id="qcResult" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="passed">✓ اجتاز الفحص - الشقة جاهزة 100%</option> <option value="failed">✗ لم يجتز الفحص - يحتاج إعادة</option> </select>
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelQCBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-purple-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-purple-700"> حفظ نتيجة الفحص </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- New Task Modal -->
+  <div id="taskModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">مهمة جديدة</h3>
+    <form id="taskForm">
+     <div class="space-y-4">
+      <div><label for="taskTitle" class="block text-sm font-medium text-gray-700">عنوان المهمة</label> <input type="text" id="taskTitle" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: تنظيف الشقة">
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="taskBuilding" class="block text-sm font-medium text-gray-700">المبنى</label> <select id="taskBuilding" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="">اختر المبنى</option> <option value="building-a">المبنى A</option> <option value="building-b">المبنى B</option> <option value="building-c">المبنى C</option> </select>
+      </div><div><label for="taskUnit" class="block text-sm font-medium text-gray-700">الشقة</label> <input type="text" id="taskUnit" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="مثال: 101">
+      </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="taskDate" class="block text-sm font-medium text-gray-700">التاريخ</label> <input type="date" id="taskDate" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+      </div><div><label for="taskTime" class="block text-sm font-medium text-gray-700">الوقت</label> <input type="time" id="taskTime" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+      </div>
+      </div>
+      <div><label for="taskDescription" class="block text-sm font-medium text-gray-700">الوصف</label> <textarea id="taskDescription" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="وصف تفصيلي للمهمة"></textarea>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="taskType" class="block text-sm font-medium text-gray-700">نوع المهمة</label> <select id="taskType" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="cleaning">تنظيف</option> <option value="maintenance">صيانة</option> <option value="inspection">فحص</option> <option value="handover">تسليم</option> <option value="other">أخرى</option> </select>
+      </div><div><label for="taskPriority" class="block text-sm font-medium text-gray-700">الأولوية</label> <select id="taskPriority" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"> <option value="low">منخفضة</option> <option value="medium">متوسطة</option> <option value="high">عالية</option> <option value="urgent">عاجلة</option> </select>
+      </div>
+      </div>
+      <div><label for="taskAssignee" class="block text-sm font-medium text-gray-700">المكلف</label> <input type="text" id="taskAssignee" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="اسم الموظف المكلف">
+      </div>
+     </div>
+     <div class="mt-6 flex justify-end space-x-3 space-x-reverse"><button type="button" id="cancelTaskBtn" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"> إلغاء </button> <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700"> حفظ المهمة </button>
+     </div>
+    </form>
+   </div>
   </div>
   <script>
         // Global state
         let currentUser = null;
         let currentData = [];
         let currentSection = 'dashboard';
+        let calendarTasks = [];
+        let currentCalendarDate = new Date();
 
         // Default configuration
         const defaultConfig = {
@@ -884,6 +1315,238 @@
             ])
         };
 
+        // Calendar functions
+        const arabicMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const arabicDays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // Update month/year display
+            document.getElementById('currentMonth').textContent = arabicMonths[month] + ' ' + year;
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            if (!calendarGrid) return;
+            
+            calendarGrid.innerHTML = '';
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'bg-gray-50 min-h-[120px] p-2 border-l border-b border-gray-200';
+                calendarGrid.appendChild(emptyDay);
+            }
+            
+            // Add cells for each day of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                const today = new Date();
+                const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
+                
+                dayCell.className = `bg-white min-h-[120px] p-2 border-l border-b border-gray-200 hover:bg-blue-50 transition-colors cursor-pointer ${isToday ? 'bg-blue-50 border-blue-300 border-2' : ''}`;
+                dayCell.dataset.date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                const dayNumber = document.createElement('div');
+                if (isToday) {
+                    dayNumber.className = 'inline-block bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mb-2';
+                } else {
+                    dayNumber.className = 'text-sm font-semibold text-gray-700 mb-2';
+                }
+                dayNumber.textContent = day;
+                
+                dayCell.appendChild(dayNumber);
+                
+                // Add tasks for this day
+                const dayTasks = calendarTasks.filter(task => {
+                    if (!task.date) return false;
+                    const taskDate = new Date(task.date);
+                    return taskDate.getFullYear() === year && 
+                           taskDate.getMonth() === month && 
+                           taskDate.getDate() === day;
+                });
+                
+                const tasksContainer = document.createElement('div');
+                tasksContainer.className = 'space-y-1 mt-1';
+                
+                dayTasks.slice(0, 3).forEach(task => {
+                    const taskBadge = document.createElement('div');
+                    const priorityColors = {
+                        'urgent': 'bg-red-600',
+                        'high': 'bg-orange-500',
+                        'medium': 'bg-yellow-500',
+                        'low': 'bg-green-500'
+                    };
+                    taskBadge.className = `text-xs text-white px-2 py-1 rounded-full truncate mb-1 ${priorityColors[task.priority] || 'bg-gray-500'}`;
+                    taskBadge.textContent = task.title;
+                    taskBadge.title = `${task.building} - ${task.unit}: ${task.title}`;
+                    taskBadge.style.cursor = 'pointer';
+                    taskBadge.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Could open task details here
+                    });
+                    tasksContainer.appendChild(taskBadge);
+                });
+                
+                if (dayTasks.length > 3) {
+                    const moreBadge = document.createElement('div');
+                    moreBadge.className = 'text-xs text-gray-600 font-medium mt-1';
+                    moreBadge.textContent = `+${dayTasks.length - 3} أكثر`;
+                    tasksContainer.appendChild(moreBadge);
+                }
+                
+                dayCell.appendChild(tasksContainer);
+                dayCell.addEventListener('click', (e) => {
+                    if (e.target === dayCell || e.target.closest('.text-sm')) {
+                        const dateInput = document.getElementById('taskDate');
+                        if (dateInput) {
+                            dateInput.value = dayCell.dataset.date;
+                        }
+                        const taskModal = document.getElementById('taskModal');
+                        if (taskModal) {
+                            taskModal.classList.remove('hidden');
+                            taskModal.classList.add('flex');
+                        }
+                    }
+                });
+                
+                calendarGrid.appendChild(dayCell);
+            }
+            
+            updateTodayTasks();
+            updateTasksByLocation();
+        }
+
+        function updateTodayTasks() {
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            const todayTasks = calendarTasks.filter(task => {
+                const taskDate = new Date(task.date);
+                const taskStr = `${taskDate.getFullYear()}-${String(taskDate.getMonth() + 1).padStart(2, '0')}-${String(taskDate.getDate()).padStart(2, '0')}`;
+                return taskStr === todayStr;
+            });
+            
+            const container = document.getElementById('todayTasks');
+            const noTasks = document.getElementById('noTasksToday');
+            
+            if (!container) return;
+            
+            if (todayTasks.length === 0) {
+                container.innerHTML = '';
+                if (noTasks) noTasks.classList.remove('hidden');
+            } else {
+                if (noTasks) noTasks.classList.add('hidden');
+                container.innerHTML = '';
+                
+                todayTasks.forEach(task => {
+                    const priorityColors = {
+                        'urgent': 'bg-red-50 border-red-500',
+                        'high': 'bg-orange-50 border-orange-500',
+                        'medium': 'bg-yellow-50 border-yellow-500',
+                        'low': 'bg-blue-50 border-blue-500'
+                    };
+                    
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = `flex items-start p-3 ${priorityColors[task.priority] || 'bg-gray-50 border-gray-500'} border-r-4 rounded mb-2`;
+                    
+                    taskDiv.innerHTML = `
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">${task.title} - ${task.building} - ${task.unit}</p>
+                            <p class="text-xs text-gray-500 mt-1">${task.time || ''} - ${getPriorityText(task.priority)}</p>
+                        </div>
+                        <button onclick="completeTask('${task.id}')" class="text-green-600 hover:text-green-800 text-sm">✓</button>
+                    `;
+                    
+                    container.appendChild(taskDiv);
+                });
+            }
+        }
+
+        function updateTasksByLocation() {
+            const locationMap = {};
+            
+            calendarTasks.forEach(task => {
+                const key = `${task.building} - ${task.unit}`;
+                if (!locationMap[key]) {
+                    locationMap[key] = [];
+                }
+                locationMap[key].push(task);
+            });
+            
+            const container = document.getElementById('tasksByLocation');
+            const noLocationTasks = document.getElementById('noLocationTasks');
+            
+            if (!container) return;
+            
+            if (Object.keys(locationMap).length === 0) {
+                container.innerHTML = '';
+                if (noLocationTasks) noLocationTasks.classList.remove('hidden');
+            } else {
+                if (noLocationTasks) noLocationTasks.classList.add('hidden');
+                container.innerHTML = '';
+                
+                Object.keys(locationMap).forEach(location => {
+                    const locationDiv = document.createElement('div');
+                    locationDiv.className = 'border-b border-gray-200 pb-3 mb-3';
+                    
+                    const locationTitle = document.createElement('p');
+                    locationTitle.className = 'text-sm font-semibold text-gray-900 mb-2';
+                    locationTitle.textContent = location;
+                    
+                    const tasksList = document.createElement('div');
+                    tasksList.className = 'space-y-2 mr-4';
+                    
+                    locationMap[location].forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'flex items-center text-xs text-gray-600';
+                        
+                        const priorityColors = {
+                            'urgent': 'bg-red-500',
+                            'high': 'bg-orange-500',
+                            'medium': 'bg-yellow-500',
+                            'low': 'bg-green-500'
+                        };
+                        
+                        taskItem.innerHTML = `
+                            <span class="w-2 h-2 ${priorityColors[task.priority] || 'bg-gray-500'} rounded-full ml-2"></span>
+                            ${task.title} (${new Date(task.date).toLocaleDateString('ar-SA')})
+                        `;
+                        
+                        tasksList.appendChild(taskItem);
+                    });
+                    
+                    locationDiv.appendChild(locationTitle);
+                    locationDiv.appendChild(tasksList);
+                    container.appendChild(locationDiv);
+                });
+            }
+        }
+
+        function getPriorityText(priority) {
+            const priorities = {
+                'urgent': 'عاجلة',
+                'high': 'عالية',
+                'medium': 'متوسطة',
+                'low': 'منخفضة'
+            };
+            return priorities[priority] || priority;
+        }
+
+        // Make completeTask available globally
+        window.completeTask = function(taskId) {
+            calendarTasks = calendarTasks.filter(task => task.id !== taskId);
+            localStorage.setItem('calendarTasks', JSON.stringify(calendarTasks));
+            renderCalendar();
+            showNotification('تم إنجاز المهمة بنجاح', 'success');
+        };
+
         // Initialize application
         async function initApp() {
             try {
@@ -897,6 +1560,47 @@
                     }
                 }
                 setupEventListeners();
+                // Load saved tasks from localStorage
+                const savedTasks = localStorage.getItem('calendarTasks');
+                if (savedTasks) {
+                    calendarTasks = JSON.parse(savedTasks);
+                } else {
+                    // Add sample tasks for demo
+                    const today = new Date();
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    
+                    calendarTasks = [
+                        {
+                            id: '1',
+                            title: 'تنظيف الشقة',
+                            building: 'المبنى A',
+                            unit: '101',
+                            date: today.toISOString().split('T')[0],
+                            time: '10:00',
+                            description: 'تنظيف شامل للشقة',
+                            type: 'cleaning',
+                            priority: 'medium',
+                            assignee: 'فريق التنظيف',
+                            completed: false
+                        },
+                        {
+                            id: '2',
+                            title: 'صيانة التكييف',
+                            building: 'المبنى B',
+                            unit: '205',
+                            date: today.toISOString().split('T')[0],
+                            time: '14:00',
+                            description: 'فحص وصيانة وحدة التكييف',
+                            type: 'maintenance',
+                            priority: 'urgent',
+                            assignee: 'فريق الصيانة',
+                            completed: false
+                        }
+                    ];
+                    localStorage.setItem('calendarTasks', JSON.stringify(calendarTasks));
+                }
+                renderCalendar();
                 showNotification('تم تحميل النظام بنجاح', 'success');
             } catch (error) {
                 console.error('Failed to initialize app:', error);
@@ -924,6 +1628,786 @@
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', handleLogout);
             }
+
+            // Calendar navigation
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            if (prevMonthBtn) {
+                prevMonthBtn.addEventListener('click', () => {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                    renderCalendar();
+                });
+            }
+            if (nextMonthBtn) {
+                nextMonthBtn.addEventListener('click', () => {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                    renderCalendar();
+                });
+            }
+
+            // Task modal
+            const newTaskBtn = document.getElementById('newTaskBtn');
+            const taskModal = document.getElementById('taskModal');
+            const taskForm = document.getElementById('taskForm');
+            const cancelTaskBtn = document.getElementById('cancelTaskBtn');
+            
+            if (newTaskBtn) {
+                newTaskBtn.addEventListener('click', () => {
+                    // Reset form
+                    if (taskForm) taskForm.reset();
+                    // Set today's date as default
+                    const today = new Date().toISOString().split('T')[0];
+                    const dateInput = document.getElementById('taskDate');
+                    if (dateInput) dateInput.value = today;
+                    
+                    if (taskModal) {
+                        taskModal.classList.remove('hidden');
+                        taskModal.classList.add('flex');
+                    }
+                });
+            }
+
+            if (cancelTaskBtn) {
+                cancelTaskBtn.addEventListener('click', () => {
+                    closeTaskModal();
+                });
+            }
+
+            // Close modal when clicking outside
+            if (taskModal) {
+                taskModal.addEventListener('click', (e) => {
+                    if (e.target === taskModal) {
+                        closeTaskModal();
+                    }
+                });
+            }
+
+            // Close modal with ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && taskModal && !taskModal.classList.contains('hidden')) {
+                    closeTaskModal();
+                }
+            });
+
+            // Cleaning Task Modal
+            const newCleaningBtn = document.getElementById('newCleaningBtn');
+            const cleaningTaskModal = document.getElementById('cleaningTaskModal');
+            const cleaningTaskForm = document.getElementById('cleaningTaskForm');
+            const cancelCleaningTaskBtn = document.getElementById('cancelCleaningTaskBtn');
+
+            if (newCleaningBtn) {
+                newCleaningBtn.addEventListener('click', () => {
+                    openCleaningTaskModal();
+                });
+            }
+
+            if (cancelCleaningTaskBtn) {
+                cancelCleaningTaskBtn.addEventListener('click', () => {
+                    if (cleaningTaskModal) {
+                        cleaningTaskModal.classList.add('hidden');
+                        cleaningTaskModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            if (cleaningTaskForm) {
+                cleaningTaskForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const taskId = cleaningTaskForm.dataset.taskId || (Date.now().toString());
+                    
+                    const task = {
+                        id: taskId,
+                        type: document.getElementById('cleaningTaskType').value,
+                        building: document.getElementById('cleaningTaskBuilding').value,
+                        unit: document.getElementById('cleaningTaskUnit').value,
+                        assignee: document.getElementById('cleaningTaskAssignee').value,
+                        startDate: document.getElementById('cleaningTaskStartDate').value,
+                        endDate: document.getElementById('cleaningTaskEndDate').value,
+                        status: document.getElementById('cleaningTaskStatus').value,
+                        notes: document.getElementById('cleaningTaskNotes').value,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    if (cleaningTaskForm.dataset.taskId) {
+                        // Update existing task
+                        const index = cleaningTasks.findIndex(t => t.id === taskId);
+                        if (index !== -1) {
+                            cleaningTasks[index] = task;
+                        }
+                    } else {
+                        // Add new task
+                        cleaningTasks.push(task);
+                    }
+
+                    saveCleaningTasks();
+                    renderMainTasksTable();
+                    
+                    if (cleaningTaskModal) {
+                        cleaningTaskModal.classList.add('hidden');
+                        cleaningTaskModal.classList.remove('flex');
+                    }
+                    
+                    cleaningTaskForm.reset();
+                    delete cleaningTaskForm.dataset.taskId;
+                    
+                    showNotification('تم حفظ المهمة بنجاح', 'success');
+                });
+            }
+
+            // Quality Check Modal
+            const newQualityCheckBtn = document.getElementById('newQualityCheckBtn');
+            const qualityCheckModal = document.getElementById('qualityCheckModal');
+            const qualityCheckForm = document.getElementById('qualityCheckForm');
+            const cancelQCBtn = document.getElementById('cancelQCBtn');
+
+            if (newQualityCheckBtn) {
+                newQualityCheckBtn.addEventListener('click', () => {
+                    // Populate quality checklist
+                    const qcChecklist = document.getElementById('qcChecklist');
+                    if (qcChecklist) {
+                        const checklistItems = [
+                            'فحص السرير هل مرتب بشكل مثالي',
+                            'التأكد من عدد المناشف',
+                            'التأكد من عدم وجود روائح',
+                            'التأكد من نظافة المرايا',
+                            'التأكد من توفر كل الـ mini items',
+                            'التأكد من عدد الكاسات والصحون',
+                            'التأكد من الباب والأقفال',
+                            'التأكد أن التكييف يعمل',
+                            'التأكد أن الشقة 100% جاهزة'
+                        ];
+                        
+                        qcChecklist.innerHTML = checklistItems.map(item => 
+                            `<label class="flex items-center mb-2">
+                                <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                <span class="mr-2 text-sm text-gray-700">${item}</span>
+                            </label>`
+                        ).join('');
+                    }
+                    
+                    if (qualityCheckModal) {
+                        qualityCheckModal.classList.remove('hidden');
+                        qualityCheckModal.classList.add('flex');
+                    }
+                });
+            }
+
+            if (cancelQCBtn) {
+                cancelQCBtn.addEventListener('click', () => {
+                    if (qualityCheckModal) {
+                        qualityCheckModal.classList.add('hidden');
+                        qualityCheckModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            // Checklist tabs
+            document.querySelectorAll('.checklist-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.checklist-tab').forEach(t => {
+                        t.classList.remove('border-b-2', 'border-green-600', 'active');
+                        t.classList.add('text-gray-700');
+                    });
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('border-b-2', 'border-green-600', 'active');
+                    tab.classList.remove('text-gray-700');
+                    
+                    // Hide all checklist contents
+                    document.querySelectorAll('.checklist-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show selected checklist
+                    const checklistId = tab.dataset.checklist;
+                    const checklistContent = document.getElementById(`checklist-${checklistId}`);
+                    if (checklistContent) {
+                        checklistContent.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Initialize cleaning tasks
+            loadCleaningTasks();
+            updateTodayTasks();
+
+            // New Building Modal
+            const newBuildingBtn = document.getElementById('newBuildingBtn');
+            const buildingModal = document.getElementById('buildingModal');
+            const buildingForm = document.getElementById('buildingForm');
+            const cancelBuildingBtn = document.getElementById('cancelBuildingBtn');
+
+            if (newBuildingBtn) {
+                newBuildingBtn.addEventListener('click', () => {
+                    if (buildingForm) buildingForm.reset();
+                    buildingsImages['new'] = [];
+                    updateBuildingImagesPreview();
+                    if (buildingModal) {
+                        buildingModal.classList.remove('hidden');
+                        buildingModal.classList.add('flex');
+                    }
+                });
+            }
+
+            if (cancelBuildingBtn) {
+                cancelBuildingBtn.addEventListener('click', () => {
+                    if (buildingModal) {
+                        buildingModal.classList.add('hidden');
+                        buildingModal.classList.remove('flex');
+                    }
+                    delete buildingsImages['new'];
+                });
+            }
+
+            if (buildingForm) {
+                buildingForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const newBuilding = {
+                        id: document.getElementById('buildingCode').value,
+                        name: document.getElementById('buildingName').value,
+                        code: document.getElementById('buildingCode').value,
+                        units: 0,
+                        address: document.getElementById('buildingAddress').value,
+                        floors: document.getElementById('buildingFloors').value,
+                        notes: document.getElementById('buildingNotes').value
+                    };
+
+                    buildings.push(newBuilding);
+                    
+                    // Save images for new building
+                    if (buildingsImages['new']) {
+                        buildingsImages[newBuilding.id] = buildingsImages['new'];
+                        delete buildingsImages['new'];
+                    }
+                    
+                    saveBuildings();
+                    renderBuildings();
+                    
+                    if (buildingModal) {
+                        buildingModal.classList.add('hidden');
+                        buildingModal.classList.remove('flex');
+                    }
+                    
+                    buildingForm.reset();
+                    showNotification('تم إضافة المبنى بنجاح', 'success');
+                });
+            }
+
+            // Building Images Modal
+            const closeBuildingImagesBtn = document.getElementById('closeBuildingImagesBtn');
+            if (closeBuildingImagesBtn) {
+                closeBuildingImagesBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('buildingImagesModal');
+                    if (modal) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
+                });
+            }
+
+            // Unit Modal - Update to handle images
+            const newUnitBtn = document.getElementById('newUnitBtn');
+            const unitModal = document.getElementById('unitModal');
+            const unitForm = document.getElementById('unitForm');
+            const cancelUnitBtn = document.getElementById('cancelUnitBtn');
+
+            if (newUnitBtn) {
+                newUnitBtn.addEventListener('click', () => {
+                    currentUnitImages = [];
+                    updateUnitImagesPreview();
+                    if (unitForm) unitForm.reset();
+                    renderBuildings(); // Update building select
+                    if (unitModal) {
+                        unitModal.classList.remove('hidden');
+                        unitModal.classList.add('flex');
+                    }
+                });
+            }
+
+            if (cancelUnitBtn) {
+                cancelUnitBtn.addEventListener('click', () => {
+                    currentUnitImages = [];
+                    if (unitModal) {
+                        unitModal.classList.add('hidden');
+                        unitModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            if (unitForm) {
+                unitForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const unit = {
+                        id: Date.now().toString(),
+                        building: document.getElementById('unitBuilding').value,
+                        number: document.getElementById('unitNumber').value,
+                        floor: document.getElementById('unitFloor').value,
+                        type: document.getElementById('unitType').value,
+                        size: document.getElementById('unitSize').value,
+                        notes: document.getElementById('unitNotes').value,
+                        images: [...currentUnitImages], // Save unit images
+                        status: 'available',
+                        createdAt: new Date().toISOString()
+                    };
+
+                    // Save unit (you might want to add a units array)
+                    let units = JSON.parse(localStorage.getItem('units') || '[]');
+                    units.push(unit);
+                    localStorage.setItem('units', JSON.stringify(units));
+                    
+                    currentUnitImages = [];
+                    updateUnitImagesPreview();
+                    
+                    if (unitModal) {
+                        unitModal.classList.add('hidden');
+                        unitModal.classList.remove('flex');
+                    }
+                    
+                    unitForm.reset();
+                    showNotification('تم إضافة الشقة بنجاح', 'success');
+                });
+            }
+
+            // Buildings Management
+            let buildings = [];
+            let buildingsImages = {};
+            let currentUnitImages = [];
+            let currentBuildingId = null;
+
+            // Load buildings from localStorage
+            function loadBuildings() {
+                const saved = localStorage.getItem('buildings');
+                if (saved) {
+                    buildings = JSON.parse(saved);
+                } else {
+                    // Default buildings
+                    buildings = [
+                        { id: 'al-astr', name: 'الأستر', code: 'al-astr', units: 20, address: '' },
+                        { id: 'al-fantage', name: 'الفانتج', code: 'al-fantage', units: 15, address: '' },
+                        { id: 'lumos', name: 'لوموس', code: 'lumos', units: 18, address: '' },
+                        { id: 'al-mustashfa', name: 'المستشفى', code: 'al-mustashfa', units: 12, address: '' },
+                        { id: 'sky', name: 'سكاي', code: 'sky', units: 0, address: '' }
+                    ];
+                    saveBuildings();
+                }
+
+                // Load building images
+                const savedImages = localStorage.getItem('buildingsImages');
+                if (savedImages) {
+                    buildingsImages = JSON.parse(savedImages);
+                    renderBuildings();
+                }
+            }
+
+            // Save buildings to localStorage
+            function saveBuildings() {
+                localStorage.setItem('buildings', JSON.stringify(buildings));
+                localStorage.setItem('buildingsImages', JSON.stringify(buildingsImages));
+            }
+
+            // Render buildings grid
+            function renderBuildings() {
+                const grid = document.getElementById('buildingsGrid');
+                const buildingSelect = document.getElementById('unitBuilding');
+                
+                if (!grid) return;
+
+                grid.innerHTML = '';
+                
+                buildings.forEach(building => {
+                    const buildingCard = document.createElement('div');
+                    buildingCard.className = 'bg-white shadow rounded-lg overflow-hidden card-hover cursor-pointer';
+                    buildingCard.dataset.building = building.code;
+                    
+                    const mainImage = buildingsImages[building.id] && buildingsImages[building.id].length > 0 
+                        ? buildingsImages[building.id][0] 
+                        : '';
+                    
+                    buildingCard.innerHTML = `
+                        <div class="relative h-48 bg-gray-200">
+                            ${mainImage ? `<img src="${mainImage}" alt="${building.name}" class="w-full h-full object-cover">` : ''}
+                            <div class="absolute top-2 left-2">
+                                <button onclick="openBuildingImagesModal('${building.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium">📷 الصور</button>
+                            </div>
+                            ${!mainImage ? `<div class="flex items-center justify-center h-full text-gray-400"><span class="text-sm">لا توجد صورة</span></div>` : ''}
+                        </div>
+                        <div class="p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-900">${building.name}</h3>
+                            <p class="text-sm text-gray-600 mt-1">${building.units} شقة</p>
+                            <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
+                                <div class="text-center"><div class="w-3 h-3 bg-green-500 rounded-full mx-auto"></div><span class="text-xs text-gray-600">متاحة</span></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(buildingCard);
+                });
+
+                // Update building select in unit form
+                if (buildingSelect) {
+                    buildingSelect.innerHTML = '<option value="">اختر المبنى</option>' + 
+                        buildings.map(b => `<option value="${b.code}">${b.name}</option>`).join('');
+                }
+            }
+
+            // Handle unit images upload (max 12 images)
+            window.handleUnitImagesUpload = function(event) {
+                const files = Array.from(event.target.files);
+                const maxImages = 12;
+                const currentCount = currentUnitImages.length;
+                
+                if (currentCount + files.length > maxImages) {
+                    showNotification(`يمكنك رفع حتى ${maxImages} صورة فقط. تم اختيار ${maxImages - currentCount} صورة`, 'warning');
+                    files.splice(maxImages - currentCount);
+                }
+
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            currentUnitImages.push(e.target.result);
+                            updateUnitImagesPreview();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            };
+
+            // Update unit images preview
+            function updateUnitImagesPreview() {
+                const preview = document.getElementById('unitImagesPreview');
+                if (!preview) return;
+
+                preview.innerHTML = '';
+                
+                currentUnitImages.forEach((image, index) => {
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'relative group';
+                    imgDiv.innerHTML = `
+                        <img src="${image}" alt="Preview ${index + 1}" class="w-full h-24 object-cover rounded">
+                        <button onclick="removeUnitImage(${index})" class="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                    `;
+                    preview.appendChild(imgDiv);
+                });
+            }
+
+            // Remove unit image
+            window.removeUnitImage = function(index) {
+                currentUnitImages.splice(index, 1);
+                updateUnitImagesPreview();
+            };
+
+            // Handle building images upload
+            window.handleBuildingImagesUpload = function(event, buildingId) {
+                const files = Array.from(event.target.files);
+                if (!buildingsImages[buildingId]) {
+                    buildingsImages[buildingId] = [];
+                }
+
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            buildingsImages[buildingId].push(e.target.result);
+                            saveBuildings();
+                            if (buildingId === 'new') {
+                                updateBuildingImagesPreview();
+                            } else {
+                                renderBuildingImagesModal(buildingId);
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            };
+
+            // Update building images preview (for new building)
+            function updateBuildingImagesPreview() {
+                const preview = document.getElementById('buildingImagesPreview');
+                if (!preview || !buildingsImages['new']) return;
+
+                preview.innerHTML = '';
+                buildingsImages['new'].forEach((image, index) => {
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'relative group';
+                    imgDiv.innerHTML = `
+                        <img src="${image}" alt="Preview ${index + 1}" class="w-full h-24 object-cover rounded">
+                        <button onclick="removeBuildingImage('new', ${index})" class="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                    `;
+                    preview.appendChild(imgDiv);
+                });
+            }
+
+            // Open building images modal
+            window.openBuildingImagesModal = function(buildingId) {
+                currentBuildingId = buildingId;
+                const modal = document.getElementById('buildingImagesModal');
+                const title = document.getElementById('buildingImagesModalTitle');
+                const building = buildings.find(b => b.id === buildingId);
+                
+                if (title && building) {
+                    title.textContent = `صور مبنى ${building.name}`;
+                }
+                
+                renderBuildingImagesModal(buildingId);
+                
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            };
+
+            // Render building images in modal
+            function renderBuildingImagesModal(buildingId) {
+                const grid = document.getElementById('buildingImagesGrid');
+                if (!grid) return;
+
+                const images = buildingsImages[buildingId] || [];
+                
+                grid.innerHTML = '';
+                
+                if (images.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">لا توجد صور لهذا المبنى</div>';
+                } else {
+                    images.forEach((image, index) => {
+                        const imgDiv = document.createElement('div');
+                        imgDiv.className = 'relative group';
+                        imgDiv.innerHTML = `
+                            <img src="${image}" alt="Image ${index + 1}" class="w-full h-32 object-cover rounded">
+                            <button onclick="removeBuildingImage('${buildingId}', ${index})" class="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                        `;
+                        grid.appendChild(imgDiv);
+                    });
+                }
+            }
+
+            // Remove building image
+            window.removeBuildingImage = function(buildingId, index) {
+                if (buildingsImages[buildingId]) {
+                    buildingsImages[buildingId].splice(index, 1);
+                    saveBuildings();
+                    if (buildingId === 'new') {
+                        updateBuildingImagesPreview();
+                    } else {
+                        renderBuildingImagesModal(buildingId);
+                        renderBuildings();
+                    }
+                }
+            };
+
+            // Initialize buildings
+            loadBuildings();
+            renderBuildings();
+        }
+
+        // Helper function to close task modal
+        function closeTaskModal() {
+            const taskModal = document.getElementById('taskModal');
+            const taskForm = document.getElementById('taskForm');
+            if (taskModal) {
+                taskModal.classList.add('hidden');
+                taskModal.classList.remove('flex');
+            }
+            if (taskForm) {
+                taskForm.reset();
+            }
+        }
+
+        // Cleaning Tasks Management
+        let cleaningTasks = [];
+        let taskIdCounter = 1;
+
+        // Load cleaning tasks from localStorage
+        function loadCleaningTasks() {
+            const saved = localStorage.getItem('cleaningTasks');
+            if (saved) {
+                cleaningTasks = JSON.parse(saved);
+            }
+        }
+
+        // Save cleaning tasks to localStorage
+        function saveCleaningTasks() {
+            localStorage.setItem('cleaningTasks', JSON.stringify(cleaningTasks));
+        }
+
+        // Render main tasks table
+        function renderMainTasksTable() {
+            const tbody = document.getElementById('mainTasksTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            if (cleaningTasks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">لا توجد مهام</td></tr>';
+                return;
+            }
+
+            cleaningTasks.forEach(task => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                const typeLabels = {
+                    'turnover': 'بعد خروج الضيف',
+                    'final_touch': 'قبل دخول الضيف',
+                    'deep_weekly': 'تنظيف عميق أسبوعي',
+                    'deep_monthly': 'تنظيف عميق شهري',
+                    'quality_check': 'فحص الجودة',
+                    'quick': 'ترتيب سريع'
+                };
+
+                const statusLabels = {
+                    'new': '<span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">جديدة</span>',
+                    'in_progress': '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">قيد التنفيذ</span>',
+                    'completed': '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">تمت</span>',
+                    'quality_check': '<span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">في انتظار الفحص</span>'
+                };
+
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm text-gray-900">TASK-${task.id}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${typeLabels[task.type] || task.type}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${task.building}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${task.unit}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${task.assignee}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${task.startDate || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${task.endDate || '-'}</td>
+                    <td class="px-4 py-3 text-sm">${statusLabels[task.status] || task.status}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${task.notes || '-'}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <button onclick="editTask('${task.id}')" class="text-blue-600 hover:text-blue-800 mr-2">تعديل</button>
+                        <button onclick="deleteTask('${task.id}')" class="text-red-600 hover:text-red-800">حذف</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateTaskStatistics();
+        }
+
+        // Update task statistics
+        function updateTaskStatistics() {
+            const stats = {
+                new: cleaningTasks.filter(t => t.status === 'new').length,
+                in_progress: cleaningTasks.filter(t => t.status === 'in_progress').length,
+                completed: cleaningTasks.filter(t => t.status === 'completed').length,
+                quality_check: cleaningTasks.filter(t => t.status === 'quality_check').length
+            };
+
+            const statsNewEl = document.getElementById('statsNew');
+            const statsInProgressEl = document.getElementById('statsInProgress');
+            const statsCompletedEl = document.getElementById('statsCompleted');
+            const statsQualityCheckEl = document.getElementById('statsQualityCheck');
+
+            if (statsNewEl) statsNewEl.textContent = stats.new;
+            if (statsInProgressEl) statsInProgressEl.textContent = stats.in_progress;
+            if (statsCompletedEl) statsCompletedEl.textContent = stats.completed;
+            if (statsQualityCheckEl) statsQualityCheckEl.textContent = stats.quality_check;
+        }
+
+        // Make functions global
+        window.editTask = function(taskId) {
+            const task = cleaningTasks.find(t => t.id === taskId);
+            if (!task) return;
+            // Open modal with task data
+            openCleaningTaskModal(task);
+        };
+
+        window.deleteTask = function(taskId) {
+            if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+                cleaningTasks = cleaningTasks.filter(t => t.id !== taskId);
+                saveCleaningTasks();
+                renderMainTasksTable();
+                showNotification('تم حذف المهمة', 'success');
+            }
+        };
+
+        // Open cleaning task modal
+        function openCleaningTaskModal(task = null) {
+            const modal = document.getElementById('cleaningTaskModal');
+            const form = document.getElementById('cleaningTaskForm');
+            if (!modal || !form) return;
+
+            if (task) {
+                // Edit mode
+                form.dataset.taskId = task.id;
+                document.getElementById('cleaningTaskType').value = task.type || '';
+                document.getElementById('cleaningTaskBuilding').value = task.building || '';
+                document.getElementById('cleaningTaskUnit').value = task.unit || '';
+                document.getElementById('cleaningTaskAssignee').value = task.assignee || '';
+                document.getElementById('cleaningTaskStartDate').value = task.startDate || '';
+                document.getElementById('cleaningTaskEndDate').value = task.endDate || '';
+                document.getElementById('cleaningTaskStatus').value = task.status || 'new';
+                document.getElementById('cleaningTaskNotes').value = task.notes || '';
+            } else {
+                form.reset();
+                delete form.dataset.taskId;
+                const today = new Date().toISOString().split('T')[0];
+                const dateInput = document.getElementById('cleaningTaskStartDate');
+                if (dateInput) dateInput.value = today;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Update today's tasks
+        function updateTodayTasks() {
+            const container = document.getElementById('todayCleaningTasks');
+            if (!container) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayTasks = cleaningTasks.filter(task => {
+                return task.startDate === today || (task.startDate <= today && task.endDate >= today);
+            });
+
+            container.innerHTML = '';
+
+            if (todayTasks.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">لا توجد مهام لهذا اليوم</p>';
+                return;
+            }
+
+            todayTasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                const statusColors = {
+                    'new': 'bg-blue-50 border-blue-200 text-blue-900',
+                    'in_progress': 'bg-yellow-50 border-yellow-200 text-yellow-900',
+                    'completed': 'bg-green-50 border-green-200 text-green-900',
+                    'quality_check': 'bg-purple-50 border-purple-200 text-purple-900'
+                };
+                const color = statusColors[task.status] || 'bg-gray-50 border-gray-200 text-gray-900';
+                
+                taskDiv.className = `flex items-center justify-between p-3 border rounded-md ${color}`;
+                taskDiv.innerHTML = `
+                    <div>
+                        <span class="font-medium">${task.building} ${task.unit}</span>
+                        <p class="text-sm">${task.type} - ${task.assignee}</p>
+                    </div>
+                    <button onclick="startTask('${task.id}')" class="text-blue-600 hover:text-blue-800 text-sm">بدء المهمة</button>
+                `;
+                container.appendChild(taskDiv);
+            });
+        }
+
+        // Start task function
+        window.startTask = function(taskId) {
+            const task = cleaningTasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            task.status = 'in_progress';
+            saveCleaningTasks();
+            renderMainTasksTable();
+            updateTodayTasks();
+            showNotification('تم بدء المهمة', 'success');
+        };
+
+        // Update tasks table when section is switched
+        function updateHousekeepingSection() {
+            renderMainTasksTable();
+            updateTodayTasks();
         }
 
         // Handle login
@@ -985,6 +2469,16 @@
             const targetSection = document.getElementById(section);
             if (targetSection) {
                 targetSection.classList.remove('hidden');
+            }
+
+            // Render calendar when switching to calendar section
+            if (section === 'calendar') {
+                renderCalendar();
+            }
+
+            // Render cleaning tasks when switching to housekeeping section
+            if (section === 'housekeeping') {
+                updateHousekeepingSection();
             }
 
             currentSection = section;
