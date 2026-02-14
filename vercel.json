@@ -24,6 +24,10 @@
       "dest": "/public/index-modern.html"
     },
     {
+      "src": "/admin.html",
+      "dest": "/public/admin.html"
+    },
+    {
       "src": "/",
       "dest": "/public/index.html"
     },
