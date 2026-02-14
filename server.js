@@ -67,6 +67,11 @@ app.get('/index-modern.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index-modern.html'));
 });
 
+// Route for admin page
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // API info route
 app.get('/api', (req, res) => {
   res.json({
