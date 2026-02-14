@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حجز الشقق - RahaTeam | Book Apartments</title>
+    <meta name="description" content="احجز شقتك المثالية - Book your perfect apartment">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --text: #374151;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            background: var(--light);
+        }
+
+        [dir="ltr"] {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: white;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--light);
+            padding: 0.25rem;
+            border-radius: 8px;
+        }
+
+        .lang-switch button {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .lang-switch button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Hero Search Section */
+        .hero-search {
+            margin-top: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 4rem 2rem;
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 3rem;
+            opacity: 0.95;
+        }
+
+        .search-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            color: var(--text);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Apartments Grid */
+        .apartments-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .apartments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .apartment-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .apartment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .apartment-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .apartment-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .status-occupied {
+            background: var(--accent);
+            color: white;
+        }
+
+        .status-maintenance {
+            background: var(--danger);
+            color: white;
+        }
+
+        .apartment-content {
+            padding: 1.5rem;
+        }
+
+        .apartment-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .apartment-location {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .apartment-specs {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .apartment-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .apartment-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-card {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #2563eb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .apartments-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span>🏠</span>
+                <span class="ar-text">RahaTeam</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" class="ar-text">الرئيسية</a><a href="#home" class="en-text hidden">Home</a></li>
+                <li><a href="#apartments" class="ar-text">الشقق المتاحة</a><a href="#apartments" class="en-text hidden">Available Apartments</a></li>
+                <li id="loginLink"><a href="#" onclick="showLoginModal(event)" class="ar-text">تسجيل الدخول</a><a href="#" onclick="showLoginModal(event)" class="en-text hidden">Login</a></li>
+                <li id="profileLink" class="hidden"><a href="/api/customers/profile" class="ar-text">ملفي الشخصي</a><a href="/api/customers/profile" class="en-text hidden">My Profile</a></li>
+            </ul>
+            <div class="lang-switch">
+                <button class="active" onclick="switchLang('ar')">عربي</button>
+                <button onclick="switchLang('en')">EN</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Search Section -->
+    <section class="hero-search" id="home">
+        <div class="hero-content">
+            <h1 class="ar-text">ابحث عن شقتك المثالية</h1>
+            <h1 class="en-text hidden">Find Your Perfect Apartment</h1>
+            <p class="ar-text">استكشف مجموعة واسعة من الشقق المتاحة للإيجار</p>
+            <p class="en-text hidden">Explore a wide range of available apartments for rent</p>
+            
+            <form class="search-form" id="searchForm" onsubmit="searchApartments(event)">
+                <div class="search-grid">
+                    <div class="form-group">
+                        <label class="ar-text">المدينة</label>
+                        <label class="en-text hidden">City</label>
+                        <input type="text" id="searchCity" placeholder="أدخل المدينة">
+                    </div>
+                    <div class="form-group">
+                        <label class="ar-text">الحد الأدنى للإيجار</label>
+                        <label class="en-text hidden">Min Rent</label>
+                        <input type="number" id="searchMinRent" placeholder="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="ar-text">الحد الأقصى للإيجار</label>
+                        <label class="en-text hidden">Max Rent</label>
+                        <input type="number" id="searchMaxRent" placeholder="10000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="ar-text">عدد الغرف</label>
+                        <label class="en-text hidden">Bedrooms</label>
+                        <select id="searchBedrooms">
+                            <option value="">الكل</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="search-btn ar-text">بحث</button>
+                <button type="submit" class="search-btn en-text hidden">Search</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Apartments Section -->
+    <section class="apartments-section" id="apartments">
+        <div class="section-header">
+            <h2 class="ar-text">الشقق المتاحة</h2>
+            <h2 class="en-text hidden">Available Apartments</h2>
+        </div>
+        
+        <div id="loadingState" class="loading hidden">
+            <div class="spinner"></div>
+            <p class="ar-text">جاري التحميل...</p>
+            <p class="en-text hidden">Loading...</p>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+            <div class="empty-state-icon">🏢</div>
+            <h3 class="ar-text">لا توجد شقق متاحة</h3>
+            <h3 class="en-text hidden">No Apartments Available</h3>
+            <p class="ar-text">جرب تعديل معايير البحث</p>
+            <p class="en-text hidden">Try adjusting your search criteria</p>
+        </div>
+
+        <div id="apartmentsGrid" class="apartments-grid">
+            <!-- Apartments will be loaded here -->
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="ar-text">تسجيل الدخول</h2>
+                <h2 class="en-text hidden">Login</h2>
+                <button class="close-btn" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="loginAlert"></div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="ar-text">البريد الإلكتروني أو الهاتف</label>
+                        <label class="en-text hidden">Email or Phone</label>
+                        <input type="text" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="ar-text">كلمة المرور</label>
+                        <label class="en-text hidden">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary ar-text" style="width: 100%; margin-top: 1rem;">تسجيل الدخول</button>
+                    <button type="submit" class="btn btn-primary en-text hidden" style="width: 100%; margin-top: 1rem;">Login</button>
+                </form>
+                <p style="text-align: center; margin-top: 1rem;">
+                    <a href="#" onclick="showRegisterModal(event)" class="ar-text">ليس لديك حساب؟ سجل الآن</a>
+                    <a href="#" onclick="showRegisterModal(event)" class="en-text hidden">Don't have an account? Sign up now</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="ar-text">حجز الشقة</h2>
+                <h2 class="en-text hidden">Book Apartment</h2>
+                <button class="close-btn" onclick="closeModal('bookingModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingAlert"></div>
+                <div id="bookingApartmentInfo"></div>
+                <form id="bookingForm" onsubmit="handleBooking(event)">
+                    <input type="hidden" id="bookingApartmentId">
+                    <div class="form-group">
+                        <label class="ar-text">تاريخ البداية</label>
+                        <label class="en-text hidden">Start Date</label>
+                        <input type="date" id="bookingStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="ar-text">تاريخ النهاية</label>
+                        <label class="en-text hidden">End Date</label>
+                        <input type="date" id="bookingEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="ar-text">رسالة (اختياري)</label>
+                        <label class="en-text hidden">Message (Optional)</label>
+                        <textarea id="bookingMessage" rows="4" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; width: 100%; font-family: inherit;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary ar-text" style="width: 100%; margin-top: 1rem;">إرسال طلب الحجز</button>
+                    <button type="submit" class="btn btn-primary en-text hidden" style="width: 100%; margin-top: 1rem;">Submit Booking Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentLang = 'ar';
+        let authToken = localStorage.getItem('authToken');
+
+        // Language Switching
+        function switchLang(lang) {
+            currentLang = lang;
+            const arElements = document.querySelectorAll('.ar-text');
+            const enElements = document.querySelectorAll('.en-text');
+            const langButtons = document.querySelectorAll('.lang-switch button');
+            const html = document.documentElement;
+
+            if (lang === 'ar') {
+                arElements.forEach(el => el.classList.remove('hidden'));
+                enElements.forEach(el => el.classList.add('hidden'));
+                html.setAttribute('dir', 'rtl');
+                html.setAttribute('lang', 'ar');
+                langButtons[0].classList.add('active');
+                langButtons[1].classList.remove('active');
+            } else {
+                arElements.forEach(el => el.classList.add('hidden'));
+                enElements.forEach(el => el.classList.remove('hidden'));
+                html.setAttribute('dir', 'ltr');
+                html.setAttribute('lang', 'en');
+                langButtons[0].classList.remove('active');
+                langButtons[1].classList.add('active');
+            }
+            
+            localStorage.setItem('lang', lang);
+        }
+
+        // Load saved language
+        const savedLang = localStorage.getItem('lang') || 'ar';
+        switchLang(savedLang);
+
+        // Check authentication
+        function checkAuth() {
+            if (authToken) {
+                document.getElementById('loginLink').classList.add('hidden');
+                document.getElementById('profileLink').classList.remove('hidden');
+            }
+        }
+
+        // Modal functions
+        function showLoginModal(e) {
+            e.preventDefault();
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showRegisterModal(e) {
+            e.preventDefault();
+            closeModal('loginModal');
+            alert(currentLang === 'ar' ? 'سجل هنا: /api/auth/register' : 'Register here: /api/auth/register');
+        }
+
+        // Search Apartments
+        async function searchApartments(e) {
+            e.preventDefault();
+            const city = document.getElementById('searchCity').value;
+            const minRent = document.getElementById('searchMinRent').value;
+            const maxRent = document.getElementById('searchMaxRent').value;
+            const bedrooms = document.getElementById('searchBedrooms').value;
+
+            const params = new URLSearchParams({ status: 'available' });
+            if (city) params.append('city', city);
+            if (minRent) params.append('minRent', minRent);
+            if (maxRent) params.append('maxRent', maxRent);
+            if (bedrooms) params.append('bedrooms', bedrooms);
+
+            await loadApartments(params.toString());
+        }
+
+        // Load Apartments
+        async function loadApartments(queryParams = 'status=available') {
+            const grid = document.getElementById('apartmentsGrid');
+            const loading = document.getElementById('loadingState');
+            const empty = document.getElementById('emptyState');
+
+            grid.innerHTML = '';
+            loading.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/apartments?${queryParams}`);
+                const data = await response.json();
+
+                loading.classList.add('hidden');
+
+                if (!data.apartments || data.apartments.length === 0) {
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                data.apartments.forEach(apt => {
+                    grid.appendChild(createApartmentCard(apt));
+                });
+            } catch (error) {
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                console.error('Error loading apartments:', error);
+            }
+        }
+
+        // Create Apartment Card
+        function createApartmentCard(apartment) {
+            const card = document.createElement('div');
+            card.className = 'apartment-card';
+            
+            const status = apartment.status || 'available';
+            const statusText = {
+                'available': { ar: 'متاحة', en: 'Available' },
+                'occupied': { ar: 'مؤجرة', en: 'Occupied' },
+                'maintenance': { ar: 'صيانة', en: 'Maintenance' }
+            };
+
+            const specs = apartment.specifications || {};
+            const address = apartment.address || {};
+            const rent = apartment.rentalInfo?.monthlyRent || 0;
+
+            card.innerHTML = `
+                <div class="apartment-image">
+                    ${apartment.photos?.exterior?.[0] 
+                        ? `<img src="/uploads/${apartment.photos.exterior[0]}" alt="Apartment">`
+                        : '<span>🏠</span>'
+                    }
+                    <span class="status-badge status-${status}">
+                        <span class="ar-text">${statusText[status]?.ar || status}</span>
+                        <span class="en-text hidden">${statusText[status]?.en || status}</span>
+                    </span>
+                </div>
+                <div class="apartment-content">
+                    <h3 class="apartment-title">${apartment.buildingName} - ${apartment.apartmentNumber}</h3>
+                    <div class="apartment-location">
+                        <span>📍</span>
+                        <span>${address.city || ''}, ${address.state || ''}</span>
+                    </div>
+                    <div class="apartment-specs">
+                        <div class="spec-item">
+                            <span>🛏️</span>
+                            <span>${specs.bedrooms || 0} <span class="ar-text">غرفة</span><span class="en-text hidden">Beds</span></span>
+                        </div>
+                        <div class="spec-item">
+                            <span>🚿</span>
+                            <span>${specs.bathrooms || 0} <span class="ar-text">حمام</span><span class="en-text hidden">Baths</span></span>
+                        </div>
+                        <div class="spec-item">
+                            <span>📐</span>
+                            <span>${specs.area || 0} <span class="ar-text">م²</span><span class="en-text hidden">m²</span></span>
+                        </div>
+                    </div>
+                    <div class="apartment-price">
+                        ${rent.toLocaleString()} <span class="ar-text">ج.م/شهر</span><span class="en-text hidden">EGP/month</span>
+                    </div>
+                    <div class="apartment-actions">
+                        <button class="btn btn-primary btn-card ar-text" onclick="viewApartmentDetails('${apartment._id}')">التفاصيل</button>
+                        <button class="btn btn-primary btn-card en-text hidden" onclick="viewApartmentDetails('${apartment._id}')">Details</button>
+                        ${status === 'available' 
+                            ? `<button class="btn btn-secondary btn-card ar-text" onclick="bookApartment('${apartment._id}')">حجز</button>
+                               <button class="btn btn-secondary btn-card en-text hidden" onclick="bookApartment('${apartment._id}')">Book</button>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // View Apartment Details
+        async function viewApartmentDetails(apartmentId) {
+            try {
+                const response = await fetch(`${API_BASE}/apartments/${apartmentId}`);
+                const data = await response.json();
+                
+                if (data.apartment) {
+                    const apt = data.apartment;
+                    const modal = document.getElementById('bookingModal');
+                    const info = document.getElementById('bookingApartmentInfo');
+                    
+                    const addressText = currentLang === 'ar' 
+                        ? `${apt.address?.city || ''}, ${apt.address?.state || ''}`
+                        : `${apt.address?.city || ''}, ${apt.address?.state || ''}`;
+                    
+                    info.innerHTML = `
+                        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--light); border-radius: 8px;">
+                            <h3 style="margin-bottom: 1rem;">${apt.buildingName} - ${apt.apartmentNumber}</h3>
+                            <p><strong><span class="ar-text">الموقع:</span><span class="en-text hidden">Location:</span></strong> ${addressText}</p>
+                            <p><strong><span class="ar-text">الغرف:</span><span class="en-text hidden">Bedrooms:</span></strong> ${apt.specifications?.bedrooms || 0} | 
+                               <strong><span class="ar-text">الحمامات:</span><span class="en-text hidden">Bathrooms:</span></strong> ${apt.specifications?.bathrooms || 0}</p>
+                            <p><strong><span class="ar-text">المساحة:</span><span class="en-text hidden">Area:</span></strong> ${apt.specifications?.area || 0} <span class="ar-text">م²</span><span class="en-text hidden">m²</span></p>
+                            <p><strong><span class="ar-text">الإيجار:</span><span class="en-text hidden">Rent:</span></strong> ${apt.rentalInfo?.monthlyRent?.toLocaleString() || 0} <span class="ar-text">ج.م/شهر</span><span class="en-text hidden">EGP/month</span></p>
+                            <p><strong><span class="ar-text">الضمان:</span><span class="en-text hidden">Deposit:</span></strong> ${apt.rentalInfo?.deposit?.toLocaleString() || 0} <span class="ar-text">ج.م</span><span class="en-text hidden">EGP</span></p>
+                        </div>
+                    `;
+                    
+                    document.getElementById('bookingApartmentId').value = apartmentId;
+                    modal.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading apartment details:', error);
+                alert(currentLang === 'ar' ? 'حدث خطأ في تحميل التفاصيل' : 'Error loading details');
+            }
+        }
+
+        // Book Apartment
+        function bookApartment(apartmentId) {
+            if (!authToken) {
+                showLoginModal(new Event('click'));
+                return;
+            }
+            viewApartmentDetails(apartmentId);
+        }
+
+        // Handle Booking
+        async function handleBooking(e) {
+            e.preventDefault();
+            
+            if (!authToken) {
+                showLoginModal(new Event('click'));
+                return;
+            }
+
+            const apartmentId = document.getElementById('bookingApartmentId').value;
+            const startDate = document.getElementById('bookingStartDate').value;
+            const endDate = document.getElementById('bookingEndDate').value;
+            const message = document.getElementById('bookingMessage').value;
+
+            const alertDiv = document.getElementById('bookingAlert');
+            alertDiv.innerHTML = '<div class="alert alert-info"><span class="ar-text">جاري إرسال الطلب...</span><span class="en-text hidden">Sending request...</span></div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/customers/request-rental/${apartmentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ startDate, endDate, message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alertDiv.innerHTML = '<div class="alert alert-success"><span class="ar-text">✓ تم إرسال طلب الحجز بنجاح</span><span class="en-text hidden">✓ Booking request sent successfully</span></div>';
+                    setTimeout(() => {
+                        closeModal('bookingModal');
+                        loadApartments();
+                    }, 2000);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">${data.message || 'حدث خطأ'}</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error"><span class="ar-text">حدث خطأ في إرسال الطلب</span><span class="en-text hidden">Error sending request</span></div>';
+                console.error('Error booking apartment:', error);
+            }
+        }
+
+        // Handle Login
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const alertDiv = document.getElementById('loginAlert');
+
+            alertDiv.innerHTML = '<div class="alert alert-info"><span class="ar-text">جاري تسجيل الدخول...</span><span class="en-text hidden">Logging in...</span></div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, userType: 'customer' })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    alertDiv.innerHTML = '<div class="alert alert-success"><span class="ar-text">✓ تم تسجيل الدخول بنجاح</span><span class="en-text hidden">✓ Login successful</span></div>';
+                    setTimeout(() => {
+                        closeModal('loginModal');
+                        checkAuth();
+                    }, 1000);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">${data.message || 'خطأ في تسجيل الدخول'}</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error"><span class="ar-text">حدث خطأ في تسجيل الدخول</span><span class="en-text hidden">Login error</span></div>';
+                console.error('Login error:', error);
+            }
+        }
+
+        // Initialize
+        checkAuth();
+        loadApartments();
+    </script>
+</body>
+</html>
+

@@ -57,6 +57,16 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Route for booking page
+app.get('/booking.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'booking.html'));
+});
+
+// Route for modern page
+app.get('/index-modern.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index-modern.html'));
+});
+
 // API info route
 app.get('/api', (req, res) => {
   res.json({

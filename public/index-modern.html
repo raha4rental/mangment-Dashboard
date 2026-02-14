@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RahaTeam - نظام إدارة الممتلكات | Property Management System</title>
+    <meta name="description" content="نظام شامل لإدارة الشقق والممتلكات - A comprehensive apartment and property management system">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --text: #374151;
+            --text-light: #6b7280;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        [dir="ltr"] {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--light);
+            padding: 0.25rem;
+            border-radius: 8px;
+        }
+
+        .lang-switch button {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .lang-switch button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-text p {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .hero-image {
+            animation: fadeInRight 1s ease;
+        }
+
+        .hero-image svg {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: var(--light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.125rem;
+            color: var(--text-light);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            background: white;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span>🏠</span>
+                <span class="ar-text">RahaTeam</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" class="ar-text">الرئيسية</a><a href="#home" class="en-text" style="display: none;">Home</a></li>
+                <li><a href="#features" class="ar-text">المميزات</a><a href="#features" class="en-text" style="display: none;">Features</a></li>
+                <li><a href="#stats" class="ar-text">الإحصائيات</a><a href="#stats" class="en-text" style="display: none;">Stats</a></li>
+                <li><a href="#contact" class="ar-text">اتصل بنا</a><a href="#contact" class="en-text" style="display: none;">Contact</a></li>
+                <li>
+                    <a href="/api/auth/login" class="btn btn-primary ar-text">تسجيل الدخول</a>
+                    <a href="/api/auth/login" class="btn btn-primary en-text" style="display: none;">Login</a>
+                </li>
+            </ul>
+            <div class="lang-switch">
+                <button class="active" onclick="switchLang('ar')">عربي</button>
+                <button onclick="switchLang('en')">EN</button>
+            </div>
+            <button class="mobile-menu-toggle">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="ar-text">نظام إدارة الممتلكات الشامل</h1>
+                <h1 class="en-text" style="display: none;">Comprehensive Property Management System</h1>
+                <p class="ar-text">إدارة شاملة للشقق والإيجارات مع نظام ضمان متطور. سهولة في الاستخدام وقوة في الأداء.</p>
+                <p class="en-text" style="display: none;">Comprehensive apartment and rental management with advanced guarantee system. Easy to use, powerful performance.</p>
+                <div class="hero-buttons">
+                    <a href="#features" class="btn btn-primary ar-text">اكتشف المميزات</a>
+                    <a href="#features" class="btn btn-primary en-text" style="display: none;">Explore Features</a>
+                    <a href="#contact" class="btn btn-secondary ar-text">ابدأ الآن</a>
+                    <a href="#contact" class="btn btn-secondary en-text" style="display: none;">Get Started</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="150" y="100" width="200" height="350" fill="url(#buildingGradient)" rx="10"/>
+                    <rect x="170" y="130" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="230" y="130" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="290" y="130" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="170" y="190" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="230" y="190" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="290" y="190" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="170" y="250" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="230" y="250" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="290" y="250" width="40" height="40" fill="white" opacity="0.8"/>
+                    <rect x="220" y="320" width="60" height="80" fill="#1e293b" rx="5"/>
+                    <circle cx="90" cy="80" r="30" fill="#fbbf24" opacity="0.8"/>
+                    <path d="M 80 250 L 100 230 L 120 250 L 140 230 L 160 250" stroke="#10b981" stroke-width="8" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="ar-text">المميزات الرئيسية</h2>
+                <h2 class="en-text" style="display: none;">Key Features</h2>
+                <p class="ar-text">نظام شامل يوفر جميع الأدوات التي تحتاجها لإدارة ممتلكاتك بكفاءة</p>
+                <p class="en-text" style="display: none;">A comprehensive system that provides all the tools you need to manage your properties efficiently</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🏠</div>
+                    <h3 class="ar-text">إدارة الشقق</h3>
+                    <h3 class="en-text" style="display: none;">Apartment Management</h3>
+                    <p class="ar-text">إدارة كاملة لجميع الشقق مع معلومات مفصلة عن كل شقة وحالتها وإيجاراتها</p>
+                    <p class="en-text" style="display: none;">Complete management of all apartments with detailed information about each apartment, its status and rentals</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 class="ar-text">إدارة العملاء والملاك</h3>
+                    <h3 class="en-text" style="display: none;">Customer & Owner Management</h3>
+                    <p class="ar-text">نظام متكامل لإدارة حسابات العملاء والملاك مع صلاحيات مختلفة لكل نوع</p>
+                    <p class="en-text" style="display: none;">Integrated system for managing customer and owner accounts with different permissions for each type</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3 class="ar-text">نظام التسليم</h3>
+                    <h3 class="en-text" style="display: none;">Handover System</h3>
+                    <p class="ar-text">نظام شامل لتسليم واستلام الشقق مع فحص شامل للأثاث والأجهزة والمرافق</p>
+                    <p class="en-text" style="display: none;">Comprehensive system for apartment handover with thorough inspection of furniture, appliances and utilities</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="ar-text">إدارة الضمانات</h3>
+                    <h3 class="en-text" style="display: none;">Guarantee Management</h3>
+                    <p class="ar-text">تتبع شامل للضمانات المالية مع سجل كامل لجميع المعاملات</p>
+                    <p class="en-text" style="display: none;">Comprehensive tracking of financial guarantees with complete records of all transactions</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3 class="ar-text">رفع الصور</h3>
+                    <h3 class="en-text" style="display: none;">Photo Upload</h3>
+                    <p class="ar-text">رفع وإدارة صور الشقق والهويات بسهولة وأمان</p>
+                    <p class="en-text" style="display: none;">Easy and secure upload and management of apartment and ID photos</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="ar-text">الأمان والحماية</h3>
+                    <h3 class="en-text" style="display: none;">Security & Protection</h3>
+                    <p class="ar-text">نظام أمان متقدم مع تشفير كلمات المرور والمصادقة الآمنة</p>
+                    <p class="en-text" style="display: none;">Advanced security system with password encryption and secure authentication</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>1000+</h3>
+                    <p class="ar-text">شقة مُدارة</p>
+                    <p class="en-text" style="display: none;">Managed Apartments</p>
+                </div>
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p class="ar-text">عميل راضٍ</p>
+                    <p class="en-text" style="display: none;">Satisfied Customers</p>
+                </div>
+                <div class="stat-item">
+                    <h3>200+</h3>
+                    <p class="ar-text">مالك نشط</p>
+                    <p class="en-text" style="display: none;">Active Owners</p>
+                </div>
+                <div class="stat-item">
+                    <h3>24/7</h3>
+                    <p class="ar-text">دعم فني</p>
+                    <p class="en-text" style="display: none;">Support</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="contact">
+        <div class="cta-content">
+            <h2 class="ar-text">ابدأ إدارة ممتلكاتك اليوم</h2>
+            <h2 class="en-text" style="display: none;">Start Managing Your Properties Today</h2>
+            <p class="ar-text">انضم إلى آلاف الملاك والعملاء الذين يثقون بنا في إدارة ممتلكاتهم</p>
+            <p class="en-text" style="display: none;">Join thousands of owners and customers who trust us to manage their properties</p>
+            <a href="/api/auth/register" class="btn btn-primary ar-text">سجل حساب مجاني</a>
+            <a href="/api/auth/register" class="btn btn-primary en-text" style="display: none;">Sign Up Free</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 class="ar-text">RahaTeam</h3>
+                <h3 class="en-text" style="display: none;">RahaTeam</h3>
+                <p class="ar-text">نظام إدارة الممتلكات الرائد في المنطقة</p>
+                <p class="en-text" style="display: none;">The leading property management system in the region</p>
+            </div>
+            <div class="footer-section">
+                <h3 class="ar-text">روابط سريعة</h3>
+                <h3 class="en-text" style="display: none;">Quick Links</h3>
+                <ul>
+                    <li><a href="#home" class="ar-text">الرئيسية</a><a href="#home" class="en-text" style="display: none;">Home</a></li>
+                    <li><a href="#features" class="ar-text">المميزات</a><a href="#features" class="en-text" style="display: none;">Features</a></li>
+                    <li><a href="#stats" class="ar-text">الإحصائيات</a><a href="#stats" class="en-text" style="display: none;">Stats</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="ar-text">الدعم</h3>
+                <h3 class="en-text" style="display: none;">Support</h3>
+                <ul>
+                    <li><a href="#" class="ar-text">مساعدة</a><a href="#" class="en-text" style="display: none;">Help</a></li>
+                    <li><a href="#" class="ar-text">توثيق</a><a href="#" class="en-text" style="display: none;">Documentation</a></li>
+                    <li><a href="#" class="ar-text">اتصل بنا</a><a href="#" class="en-text" style="display: none;">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="ar-text">تابعنا</h3>
+                <h3 class="en-text" style="display: none;">Follow Us</h3>
+                <ul>
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">LinkedIn</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="ar-text">&copy; 2024 RahaTeam. جميع الحقوق محفوظة.</p>
+            <p class="en-text" style="display: none;">&copy; 2024 RahaTeam. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Language Switching
+        function switchLang(lang) {
+            const arElements = document.querySelectorAll('.ar-text');
+            const enElements = document.querySelectorAll('.en-text');
+            const langButtons = document.querySelectorAll('.lang-switch button');
+            const html = document.documentElement;
+
+            if (lang === 'ar') {
+                arElements.forEach(el => el.style.display = '');
+                enElements.forEach(el => el.style.display = 'none');
+                html.setAttribute('dir', 'rtl');
+                html.setAttribute('lang', 'ar');
+                langButtons[0].classList.add('active');
+                langButtons[1].classList.remove('active');
+                localStorage.setItem('lang', 'ar');
+            } else {
+                arElements.forEach(el => el.style.display = 'none');
+                enElements.forEach(el => el.style.display = '');
+                html.setAttribute('dir', 'ltr');
+                html.setAttribute('lang', 'en');
+                langButtons[0].classList.remove('active');
+                langButtons[1].classList.add('active');
+                localStorage.setItem('lang', 'en');
+            }
+        }
+
+        // Load saved language preference
+        const savedLang = localStorage.getItem('lang') || 'ar';
+        if (savedLang === 'en') {
+            switchLang('en');
+        }
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            });
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .stat-item').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
